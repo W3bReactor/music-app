@@ -1,0 +1,73 @@
+.sidebarItemLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.sidebarItemIcon {
+    margin-right: 8px;
+    fill: transparent;
+    transition: fill 0.2s linear, stroke 0.2s linear;
+}
+
+.sidebarItemTitle {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--light-color);
+    transition: color 0.2s linear;
+}
+
+.sidebarItemLogout .sidebarItemTitle {
+    color: var(--pink-color);
+}
+
+.sidebarItemLogout .sidebarItemIcon {
+    stroke: var(--pink-color);
+}
+
+
+
+.sidebarItemPlaylist .sidebarItemTitle {
+    color: var(--aqua-color);
+}
+
+.sidebarItemPlaylist .sidebarItemIcon {
+    fill: var(--aqua-color);
+}
+
+
+.sidebarItem {
+    transition: all 0.2s;
+    padding: 6px 8px;
+    border-radius: 9px;
+}
+
+.sidebarItem:hover {
+    background-color: var(--pink-color);
+
+}
+
+.sidebarItemActive {
+    background-color: var(--pink-color);
+}
+
+.sidebarItemActive .sidebarItemTitle  {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.sidebarItemPlaylist:hover .sidebarItemTitle {
+    color: var(--light-color);
+}
+
+.sidebarItemPlaylist:hover .sidebarItemIcon {
+    fill: var(--light-color);
+}
+
+.sidebarItemLogout:hover .sidebarItemTitle {
+    color: var(--light-color);
+}
+
+.sidebarItemLogout:hover .sidebarItemIcon {
+    stroke: var(--light-color);
+}
