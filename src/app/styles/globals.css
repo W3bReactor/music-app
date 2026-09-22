@@ -9,8 +9,11 @@
 :root {
     --black-color: #181818;
     --pink-color: #EE10B0;
+    --pink-hover-color: #d20f9b;
     --light-color: #FFFFFF;
     --aqua-color: #0E9EEF;
+    --black-gray-color: #1f1f1f;
+    --gray-color: #e3e3e3;
 }
 
 body {

@@ -1,0 +1,19 @@
+.btnPurple {
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    color: var(--light-color);
+    background-color: var(--pink-color);
+    padding: 8px 24px;
+    outline: none;
+    cursor: pointer;
+    text-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+
+    transition: background-color 0.2s linear;
+}
+
+.btnPurple:hover {
+    background-color: var(--pink-hover-color);
+}

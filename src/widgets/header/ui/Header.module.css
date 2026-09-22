@@ -1,0 +1,68 @@
+.header {
+    background: url("./HeaderIntro/header-intro-1.jpg") no-repeat center;
+    background-size: cover;
+    width: 100%;
+    padding: 20px 25px;
+    border-radius: 16px;
+    min-height: 595px;
+    display: flex;
+    flex-direction: column;
+}
+
+.headerInner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.headerList {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.headerItem:not(:last-child) {
+    margin-right: 70px;
+}
+
+.headerItemLink {
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    color: var(--light-color);
+    text-decoration: none;
+
+    transition: opacity 0.3s linear;
+}
+
+.headerItemLink:hover {
+    color: var(--gray-color);
+}
+
+.headerProfile {
+    display: flex;
+    align-items: center;
+}
+
+.headerProfileAvatar {
+    border-radius: 100%;
+}
+
+.headerProfileName {
+    font-weight: 400;
+    font-size: 16px;
+    text-align: center;
+    color: var(--light-color);
+    margin: 0 8px 0 12px;
+}
+
+.headerProfileBtn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+
