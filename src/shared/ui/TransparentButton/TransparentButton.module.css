@@ -1,0 +1,19 @@
+.btnTransparent {
+    border: 1px solid var(--aqua-color);
+    border-radius: 4px;
+    padding: 8px 24px;
+    background-color: transparent;
+    color: var(--aqua-color);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    text-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+
+    transition: background-color 0.2s linear, color 0.2s linear;
+}
+
+.btnTransparent:hover {
+    background-color: var(--aqua-color);
+    color: var(--light-color);
+}
