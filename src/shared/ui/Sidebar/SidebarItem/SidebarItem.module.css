@@ -13,26 +13,26 @@
 .sidebarItemTitle {
     font-weight: 500;
     font-size: 16px;
-    color: var(--light-color);
+    color: var(--text-primary);
     transition: color 0.2s linear;
 }
 
 .sidebarItemLogout .sidebarItemTitle {
-    color: var(--pink-color);
+    color: var(--text-secondary);
 }
 
 .sidebarItemLogout .sidebarItemIcon {
-    stroke: var(--pink-color);
+    stroke: var(--pink-500);
 }
 
 
 
 .sidebarItemPlaylist .sidebarItemTitle {
-    color: var(--aqua-color);
+    color: var(--action-secondary);
 }
 
 .sidebarItemPlaylist .sidebarItemIcon {
-    fill: var(--aqua-color);
+    fill: var(--aqua-800);
 }
 
 
@@ -43,12 +43,12 @@
 }
 
 .sidebarItem:hover {
-    background-color: var(--pink-color);
+    background-color: var(--action-primary);
 
 }
 
 .sidebarItemActive {
-    background-color: var(--pink-color);
+    background-color: var(--action-primary-hover);
 }
 
 .sidebarItemActive .sidebarItemTitle  {
@@ -57,17 +57,17 @@
 }
 
 .sidebarItemPlaylist:hover .sidebarItemTitle {
-    color: var(--light-color);
+    color: var(--text-primary);
 }
 
 .sidebarItemPlaylist:hover .sidebarItemIcon {
-    fill: var(--light-color);
+    fill: var(--aqua-800);
 }
 
 .sidebarItemLogout:hover .sidebarItemTitle {
-    color: var(--light-color);
+    color: var(--text-primary);
 }
 
 .sidebarItemLogout:hover .sidebarItemIcon {
-    stroke: var(--light-color);
+    stroke: var(--white-100);
 }

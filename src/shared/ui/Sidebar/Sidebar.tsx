@@ -1,6 +1,4 @@
 import styles from "./Sidebar.module.css";
-import { SvgIcon } from "@/shared/ui";
-import Link from "next/link";
 import { SidebarItem } from "@/shared/ui/Sidebar/SidebarItem/SidebarItem";
 
 export const Sidebar = () => {
