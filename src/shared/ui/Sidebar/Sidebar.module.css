@@ -25,7 +25,7 @@
 .sidebarBlockTitle {
     font-weight: 300;
     font-size: 12px;
-    color: var(--pink-color);
+    color: var(--text-secondary);
     margin-bottom: 24px;
 }
 
