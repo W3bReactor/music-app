@@ -1,6 +1,6 @@
 import styles from "./ProfilePage.module.css";
-import { Sidebar } from "@/shared/ui";
-import { Header } from "@/widgets/header/ui/Header";
+import { Footer, Sidebar } from "@/shared/ui";
+import { Header } from "@/widgets/header";
 
 export const ProfilePage = () => {
   return (
@@ -11,7 +11,7 @@ export const ProfilePage = () => {
         <main>
           <section></section>
         </main>
-        <footer></footer>
+        <Footer />
       </div>
     </div>
   );

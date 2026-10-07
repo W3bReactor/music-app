@@ -1,0 +1,128 @@
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 33px 0;
+}
+
+.footerAbout {
+    display: flex;
+    flex-direction: column;
+    max-width: 349px;
+}
+
+.footerAboutTitle {
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+}
+
+.footerAboutDesc {
+    font-weight: 400;
+    font-size: 16px;
+    text-align: justify;
+    color: var(--text-primary);
+    text-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.35);
+    opacity: 0.9;
+}
+
+.footerAboutDescPurple {
+    color: var(--pink-500);
+}
+
+.footerAboutDescAqua {
+    color: var(--aqua-800);
+}
+
+.footerNav {
+    display: flex;
+    justify-content: space-between;
+    gap: 22px;
+}
+
+.footerNavColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.footerNavTitle {
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    text-align: center;
+    color: var(--text-primary);
+    padding: 10px;
+    position: relative;
+    margin-bottom: 8px;
+    &:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: var(--white-100);
+    }
+}
+
+.footerNavList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.footerNavItem {
+    margin: 10px 0;
+}
+
+.footerNavLink {
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    text-align: center;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s linear;
+}
+
+.footerNavLink:hover {
+    color: var(--text-primary-hover);
+}
+
+.footerColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.footerColumnTitle {
+    font-weight: 800;
+    font-size: 40px;
+    background: linear-gradient(90.07deg, #ee10b0 -4.82%, rgba(14, 158, 239, 0.92) 127.01%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 35px;
+}
+
+.footerSocial {
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+.footerSocialItem:not(:last-child) {
+    margin-right: 36px;
+}
+
+.footerSocialIcon {
+    fill: transparent;
+    stroke: var(--white-100);
+    transition: all 0.3s;
+}
+
+.footerSocialIcon:hover {
+    fill: var(--white-100);
+    stroke: var(--black-500);
+}
