@@ -1,10 +1,15 @@
 import styles from "./Sidebar.module.css";
 import { SidebarItem } from "@/shared/ui/Sidebar/SidebarItem/SidebarItem";
+import Link from "next/link";
 
 export const Sidebar = () => {
   return (
     <aside className={styles.sidebar}>
-      <h1 className={styles.sidebarTitle}>Melodies</h1>
+      <h1 className={styles.sidebarTitle}>
+        <Link className={styles.sidebarTitleLink} href={"/"}>
+          Melodies
+        </Link>
+      </h1>
       <div className={styles.sidebarBlock}>
         <h2 className={styles.sidebarBlockTitle}>Menu</h2>
         <ul className={styles.sidebarList}>

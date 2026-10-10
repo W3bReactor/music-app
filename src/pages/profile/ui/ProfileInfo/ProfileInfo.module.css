@@ -1,0 +1,84 @@
+.info {
+    background: linear-gradient(90.22deg, #362431 12.91%, #140f12 112.59%);
+    border-radius: 16px 16px 0 0;
+    padding: 55px 24px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.infoImage {
+    border-radius: 99px;
+}
+
+
+.infoContent {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-left: 24px;
+}
+
+.infoProfile {
+    display: flex;
+    flex-direction: column;
+}
+
+.infoSuptitle {
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.infoTitle {
+    font-weight: 800;
+    font-size: 48px;
+    color: var(--text-primary);
+}
+
+.infoList {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    list-style: none;
+    margin-bottom: 12px;
+}
+
+.infoItem:not(:last-child) {
+    margin-right: 28px;
+    position: relative;
+    &:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -20px;
+        border-radius: 100%;
+        background-color: var(--aqua-800);
+        width: 6px;
+        height: 6px;
+        transform: translateY(-50%);
+    }
+}
+
+.infoListen {
+    font-weight: 400;
+    font-size: 16px;
+    color:var(--text-primary);
+}
+
+.infoEdit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--text-accent-secondary);
+}
+
+.infoEditIcon {
+    margin-right: 12px;
+}

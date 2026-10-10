@@ -1,0 +1,11 @@
+.page {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.pageInner {
+    grid-column: 10 span;
+    margin: 48px 25px;
+    display: flex;
+    flex-direction: column;
+}

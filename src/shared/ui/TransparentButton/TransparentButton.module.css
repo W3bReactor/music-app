@@ -3,7 +3,7 @@
     border-radius: 4px;
     padding: 8px 24px;
     background-color: transparent;
-    color: var(--text-tertiary);
+    color: var(--text-accent-secondary);
     cursor: pointer;
     font-weight: 500;
     font-size: 16px;

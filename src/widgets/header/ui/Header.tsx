@@ -6,9 +6,13 @@ import AvatarIcon from "./avatar.svg";
 import { SearchInput } from "@/features/search";
 import { HeaderIntro } from "@/widgets/header/ui/HeaderIntro/HeaderIntro";
 
-export const Header = () => {
+interface HeaderProps {
+  isIntro?: boolean;
+}
+
+export const Header = ({ isIntro = false }: HeaderProps) => {
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${isIntro ? styles.headerIntro : ""}`}>
       <div className={styles.headerInner}>
         <SearchInput />
         <ul className={styles.headerList}>
@@ -28,8 +32,8 @@ export const Header = () => {
             </Link>
           </li>
         </ul>
-
-        <div className={styles.headerProfile}>
+        {/* Возможно перестроить структуру, чтобы arrow_down отдельно была кнопкой, а остальное - ссылкой*/}
+        <Link href={"/profile"} className={styles.headerProfile}>
           <Image
             src={AvatarIcon}
             width={40}
@@ -41,9 +45,9 @@ export const Header = () => {
             <span className={styles.headerProfileName}>User Name</span>
             <SvgIcon name={"arrow_down"} size={24} />
           </button>
-        </div>
+        </Link>
       </div>
-      <HeaderIntro />
+      {isIntro && <HeaderIntro />}
     </header>
   );
 };

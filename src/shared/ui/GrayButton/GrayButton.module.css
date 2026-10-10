@@ -1,0 +1,17 @@
+.btnGray {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 24px;
+    background-color: var(--action-tertiary);
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--text-primary);
+
+    transition: background-color 0.2s linear, color 0.2s linear;
+}
+
+.btnGray:hover {
+    background-color: var(--action-tertiary-hover);
+    color: var(--text-primary);
+}
