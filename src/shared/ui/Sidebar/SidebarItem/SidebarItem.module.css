@@ -18,7 +18,7 @@
 }
 
 .sidebarItemLogout .sidebarItemTitle {
-    color: var(--text-secondary);
+    color: var(--text-accent-primary);
 }
 
 .sidebarItemLogout .sidebarItemIcon {

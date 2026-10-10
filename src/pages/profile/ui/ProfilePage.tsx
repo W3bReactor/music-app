@@ -1,18 +1,11 @@
-import styles from "./ProfilePage.module.css";
-import { Footer, Sidebar } from "@/shared/ui";
-import { Header } from "@/widgets/header";
+import { ProfileInfo } from "@/pages/profile/ui/ProfileInfo/ProfileInfo";
+import { ProfileFavorite } from "@/pages/profile/ui/ProfileFavorite/ProfileFavorite";
 
 export const ProfilePage = () => {
   return (
-    <div className={styles.page}>
-      <Sidebar />
-      <div className={styles.pageInner}>
-        <Header />
-        <main>
-          <section></section>
-        </main>
-        <Footer />
-      </div>
-    </div>
+    <>
+      <ProfileInfo />
+      <ProfileFavorite />
+    </>
   );
 };
