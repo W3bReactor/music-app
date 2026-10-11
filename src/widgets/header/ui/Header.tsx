@@ -5,6 +5,7 @@ import Image from "next/image";
 import AvatarIcon from "./avatar.svg";
 import { SearchInput } from "@/features/search";
 import { HeaderIntro } from "@/widgets/header/ui/HeaderIntro/HeaderIntro";
+import cn from "classnames";
 
 interface HeaderProps {
   isIntro?: boolean;
@@ -12,7 +13,7 @@ interface HeaderProps {
 
 export const Header = ({ isIntro = false }: HeaderProps) => {
   return (
-    <header className={`${styles.header} ${isIntro ? styles.headerIntro : ""}`}>
+    <header className={cn(styles.header, { [styles.headerIntro]: isIntro })}>
       <div className={styles.headerInner}>
         <SearchInput />
         <ul className={styles.headerList}>

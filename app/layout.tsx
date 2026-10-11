@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter } from "next/font/google";
+import cn from "classnames";
 import "@/app/styles/globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function IntroLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${vazirmatn.variable} ${inter.variable}`}>
+    <html lang="en" className={cn(vazirmatn.variable, inter.variable)}>
       <body>{children}</body>
     </html>
   );
