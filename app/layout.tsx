@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Vazirmatn, Inter } from "next/font/google";
+import cn from "classnames";
 import "@/app/styles/globals.css";
 
 const vazirmatn = Vazirmatn({

@@ -1,4 +1,5 @@
 import styles from "./GrayButton.module.css";
+import cn from "classnames";
 
 interface GrayButtonProps {
   children: React.ReactNode;

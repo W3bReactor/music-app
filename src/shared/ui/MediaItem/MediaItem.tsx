@@ -2,6 +2,7 @@ import styles from "./MediaItem.module.css";
 import Image from "next/image";
 import { AvatarIcon } from "@/shared/ui";
 import Link from "next/link";
+import cn from "classnames";
 
 interface MediaItemProps {
   className?: string;

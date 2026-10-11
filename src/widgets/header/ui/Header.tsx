@@ -5,6 +5,7 @@ import Image from "next/image";
 import AvatarIcon from "./avatar.svg";
 import { SearchInput } from "@/features/search";
 import { HeaderIntro } from "@/widgets/header/ui/HeaderIntro/HeaderIntro";
+import cn from "classnames";
 
 interface HeaderProps {
   isIntro?: boolean;

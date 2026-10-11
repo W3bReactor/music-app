@@ -1,3 +1,4 @@
+"use client";
 import styles from "./SidebarItem.module.css";
 import { SvgIcon } from "@/shared/ui";
 import Link from "next/link";
