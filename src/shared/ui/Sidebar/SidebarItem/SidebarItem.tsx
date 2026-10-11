@@ -1,5 +1,6 @@
 "use client";
 import styles from "./SidebarItem.module.css";
+import cn from "classnames";
 import { SvgIcon } from "@/shared/ui";
 import Link from "next/link";
 import { useState } from "react";
