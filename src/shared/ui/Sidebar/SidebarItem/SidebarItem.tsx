@@ -1,4 +1,3 @@
-"use client";
 import styles from "./SidebarItem.module.css";
 import { SvgIcon } from "@/shared/ui";
 import Link from "next/link";
@@ -27,7 +26,15 @@ export const SidebarItem = ({
     <li
       onMouseOver={() => setHover(true)}
       onMouseOut={() => setHover(false)}
-      className={`${styles.sidebarItem} ${active ? styles.sidebarItemActive : ""} ${variant === "playlist" ? styles.sidebarItemPlaylist : ""} ${variant === "logout" ? styles.sidebarItemLogout : ""} ${className ? className : ""}`}
+      className={cn(
+        styles.sidebarItem,
+        {
+          [styles.sidebarItemActive]: active,
+          [styles.sidebarItemPlaylist]: variant === "playlist",
+          [styles.sidebarItemLogout]: variant === "logout",
+        },
+        className
+      )}
     >
       <Link href={href} className={styles.sidebarItemLink}>
         <SvgIcon

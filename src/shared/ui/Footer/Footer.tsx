@@ -8,11 +8,13 @@ export const Footer = () => {
         <h2 className={styles.footerAboutTitle}>About</h2>
         <p className={styles.footerAboutDesc}>
           Melodies is a website that has been created for over{" "}
-          <span className={styles.footerAboutDescPurple}>5 year’s</span> now and
-          it is one of the most famous music player website’s in the world. in
-          this website you can listen and download songs for free. also of you
-          want no limitation you can buy our{" "}
-          <span className={styles.footerAboutDescAqua}>premium pass’s.</span>
+          <span className={styles.footerAboutDescPurple}>5 year&#39;s</span> now
+          and it is one of the most famous music player website&#39;s in the
+          world. in this website you can listen and download songs for free.
+          also of you want no limitation you can buy our{" "}
+          <span className={styles.footerAboutDescAqua}>
+            premium pass&#39;s.
+          </span>
         </p>
       </div>
       <div className={styles.footerNav}>

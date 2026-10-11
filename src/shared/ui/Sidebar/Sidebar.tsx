@@ -9,6 +9,7 @@ export const Sidebar = () => {
         <Link className={styles.sidebarTitleLink} href={"/"}>
           Melodies
         </Link>
+        </Link>
       </h1>
       <div className={styles.sidebarBlock}>
         <h2 className={styles.sidebarBlockTitle}>Menu</h2>

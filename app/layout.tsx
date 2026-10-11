@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function IntroLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${vazirmatn.variable} ${inter.variable}`}>
+    <html lang="en" className={cn(vazirmatn.variable, inter.variable)}>
       <body>{children}</body>
     </html>
   );

@@ -6,9 +6,5 @@ interface GrayButtonProps {
 }
 
 export const GrayButton = ({ children, className }: GrayButtonProps) => {
-  return (
-    <button className={`${styles.btnGray} ${className ? className : ""}`}>
-      {children}
-    </button>
-  );
+  return <button className={cn(styles.btnGray, className)}>{children}</button>;
 };

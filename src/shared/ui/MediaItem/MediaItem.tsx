@@ -19,7 +19,7 @@ export const MediaItem = ({
   href,
 }: MediaItemProps) => {
   return (
-    <li className={`${styles.mediaItem} ${className ? className : ""}`}>
+    <li className={cn(styles.mediaItem, className)}>
       <Link className={styles.mediaLinkWrapper} href={href}>
         <Image
           className={styles.mediaItemImage}
