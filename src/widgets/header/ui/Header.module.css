@@ -69,4 +69,12 @@
     align-items: center;
 }
 
+.headerProfileItems {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
+.headerAuthBtn {
+    padding: 8px 24px;
+}

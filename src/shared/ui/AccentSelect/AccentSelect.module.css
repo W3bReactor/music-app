@@ -1,0 +1,60 @@
+.formItem {
+    display: flex;
+    flex-direction: column;
+    &:not(:last-child) {
+        margin-bottom: 12px;
+    }
+}
+
+.formLabel {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.selectWrapper {
+    position: relative;
+}
+
+
+.formSelect {
+    width: 100%;
+    outline: none;
+    background-color: var(--action-secondary);
+    border: 0.50px solid var(--border-secondary);
+    border-radius: 4px;
+    padding: 12px 8px;
+    color: rgba(255, 255, 255, 0.75);
+    appearance: none;
+    cursor: pointer;
+    /*background-image: url();*/
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+
+
+.selectIcon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    fill: var(--white-100);
+}
+
+.formSelectActive {
+    color: rgba(255, 255, 255, 1);
+}
+
+.formSelect option:disabled {
+    opacity: 0.75;
+}
+
+.formError {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--feeback-error);
+}
+
