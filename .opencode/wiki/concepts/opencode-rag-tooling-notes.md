@@ -38,18 +38,20 @@ the failures below ([[wiki/concepts/opencode-rag-local-patches]]).
 4. **Stale index.** `openCode.autoIndex.enabled` is now `true` (chokidar, 2 s debounce, 5 min interval) instead of off,
    so edits stop leaving silent stale chunks — provided the LM Studio embedder is reachable.
 
-## Live verification after `opencode service restart` (2026-10-18 23:22)
+## Live verification after the local-install restart (2026-10-18 23:48)
 
-Restarting the TUI was not enough (it reattaches to the long-lived background server — see
-[[wiki/concepts/opencode-rag-local-patches]]). After `opencode service restart` the patched code is what the agent
-actually talks to:
+The server now loads the pinned workspace copy (`.opencode/node_modules/opencode-rag-plugin`, verified realpath +
+markers), so these are the numbers the agent actually gets:
 
 | Check | Result |
 |---|---|
-| `find_usages("Sidebar")` | 3 references across 2 files, correct lines (`MainLayout.tsx` L2 import, L14 `<Sidebar />`, `shared/ui/index.ts` L3 barrel) |
-| `search_semantic("TUI sidebar plugin failed to load @opentui/solid")` | only code chunks (CSS + `shared/ui/index.ts`), **no** `kind: quirk` results |
-| `read("src/shared/ui/index.ts")` (whole file) | body printed once, no self-chunk under "Related code chunks" |
-| Plugin load (`run=b690fde7`, role=server) | `msg="loading plugin" … rag-tui.js` with no subsequent failure — the TUI plugin loads in the server role too |
+| `find_usages("Sidebar")` | 3 references across 2 files (`MainLayout.tsx` L2/L14, `shared/ui/index.ts` L3) |
+| `find_usages("SidebarItem")` | 12 references across 1 file (`Sidebar.tsx` L2 import + 11 `<SidebarItem` sites) |
+| `find_usages("SvgIcon")` | 14 references across 7 files (`shared/ui/index.ts`, `SidebarItem`, `Footer` ×4, `AccentSelect`, `SearchInput`, `sprite.svg` comment, stray `LoginForm.js`) |
+| `search_semantic("… @opentui/solid …")` | only code/config chunks, no `kind: quirk` |
+| `read` whole file | body printed once, no self-chunk |
+| `npm run rag:check` | 4/4 files, 14 markers, index 313 chunks, 0 backslash paths |
+| `opencode-rag status` | `text-embedding-qwen3-embedding-0.6b` @ 1024 dim = store dim, 91 files, manifest ok |
 
 ## Still open (not fixable from the plugin `dist/`)
 

@@ -67,9 +67,10 @@ kind filter, `find_usages` exact scan + disk-verified line numbers, read-tool se
 `@opentui/solid` install. All of it lives in `.opencode/patches/`, is lost on plugin updates, and needs
 `opencode service restart` to take effect — see [[wiki/concepts/opencode-rag-local-patches]].
 
-**Verified live 2026-10-18 23:22** (after the background server restart): `find_usages("Sidebar")` → 3 refs in 2 files,
-`search_semantic` returns code only, whole-file `read` no longer duplicates the body, and the log records
-`loading plugin … rag-tui.js` in the server role with no failure.
+**Verified live 2026-10-18 23:48** (local pinned install, after `opencode service restart`): the shim resolves to
+`.opencode/node_modules/opencode-rag-plugin` (8 `[local patch]` markers in `tools.js`); `find_usages` gives
+`Sidebar` 3/2, `SidebarItem` 12/1, `SvgIcon` 14/7; `search_semantic` returns code only; whole-file `read` no longer
+duplicates the body; the log records `loading plugin … rag-tui.js` with no failure.
 
 ## Config locations
 

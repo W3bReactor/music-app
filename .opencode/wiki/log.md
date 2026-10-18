@@ -75,3 +75,13 @@ Made the RAG tooling survive updates instead of relying on the global npm copy:
 Updated [[wiki/concepts/opencode-rag-local-patches]], [[wiki/entities/opencode-rag-plugin]],
 [[wiki/concepts/opencode-rag-tui-sidebar]] and `.opencode/patches/README.md`. Pending: one `opencode service restart`
 so the server loads the local copy.
+
+## [2026-10-18] verify | Local install live
+After `opencode service restart` (new server 23:48, run `2435e61e`) the server loads the workspace shims; the relative
+import resolves to `.opencode/node_modules/opencode-rag-plugin/dist/plugin-entry.js` (8 `[local patch]` markers in
+`tools.js`), and `find_usages` returns the patched results: `Sidebar` 3/2, `SidebarItem` 12/1, `SvgIcon` 14/7 —
+exactly the expected counts, compared against `MainLayout.tsx` L2/L14, `Sidebar.tsx` L2 + 11 render sites, and the seven
+files using `SvgIcon`. `search_semantic` returns code/config chunks only (no quirks). `npm run rag:check` green
+(4/4 files, 14 markers, index 313 chunks, 0 backslash paths); `opencode-rag status` confirms embedder
+`text-embedding-qwen3-embedding-0.6b` @ 1024 dim = store dim. No `failed to load plugin` entries after 19:25 (all
+historical). Working tree clean at `2be20e7`.
