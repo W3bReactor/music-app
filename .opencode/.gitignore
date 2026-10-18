@@ -1,0 +1,9 @@
+# Ignore workspace-local plugin dependencies
+node_modules/
+
+# Ignore the LanceDB vector store (binary data) and its local backups
+rag_db/
+patches/backups/
+
+# Ignore logs
+opencode-rag.log
