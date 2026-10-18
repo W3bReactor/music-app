@@ -1,0 +1,367 @@
+diff --git a/pristine/dist/opencode/create-read-tool.js b/patched/dist/opencode/create-read-tool.js
+index 9bfc2fd..4cd7178 100644
+--- a/pristine/dist/opencode/create-read-tool.js
++++ b/patched/dist/opencode/create-read-tool.js
+@@ -93,12 +93,25 @@ export function createRagReadTool(options) {
+                         // Collect related files from raw results (before filtering)
+                         relatedFiles = collectRelatedFiles(rawResults, resolvedPath, readRelatedFilesMax);
+                         // Filter to the requested file
+-                        const filtered = rawResults.filter((r) => r.chunk.metadata.filePath === resolvedPath);
++                        // [local patch] Compare paths separator-insensitively: the keyword
++                        // index persisted Windows-style paths while the vector store uses
++                        // forward slashes, so keyword-origin chunks were silently dropped
++                        // here and the requested file could reappear as a "related file".
++                        const requestedKey = toForwardSlash(resolvedPath).toLowerCase();
++                        const filtered = rawResults.filter((r) => toForwardSlash(r.chunk.metadata.filePath).toLowerCase() === requestedKey);
+                         // Apply line-range overlap filtering
+                         const lineFiltered = applyLineRangeFilter(filtered, normalized.startLine, normalized.endLine);
+                         // Sort by score descending and limit
+                         lineFiltered.sort((a, b) => b.score - a.score);
+-                        ragChunks = lineFiltered.slice(0, maxContextChunks);
++                        // [local patch] Drop chunks that lie entirely inside the range already
++                        // printed above - they re-emitted the file body verbatim. A whole-file
++                        // read therefore shows no "related code chunks" for the same file, while
++                        // a partial read still gets the surrounding chunks.
++                        const shownStart = normalized.startLine ?? 1;
++                        const shownEnd = normalized.endLine ?? Number.MAX_SAFE_INTEGER;
++                        ragChunks = lineFiltered
++                            .filter((r) => !(r.chunk.metadata.startLine >= shownStart && r.chunk.metadata.endLine <= shownEnd))
++                            .slice(0, maxContextChunks);
+                     }
+                 }
+                 catch {
+@@ -208,6 +221,13 @@ function buildSessionQuery(messageText, resolvedPath, normalized) {
+         endLine: normalized.endLine,
+     });
+ }
++/**
++ * [local patch] Normalize a path to forward slashes so chunk metadata from the
++ * keyword index and the vector store compare equal on Windows.
++ */
++function toForwardSlash(p) {
++    return String(p ?? "").replace(/\\/g, "/");
++}
+ /**
+  * Collect unique related files from raw search results, excluding the
+  * requested file. Keeps the best score per file path and returns at most
+@@ -219,7 +239,8 @@ function collectRelatedFiles(rawResults, requestedFile, maxRelated) {
+     const bestScore = new Map();
+     for (const r of rawResults) {
+         const fp = r.chunk.metadata.filePath;
+-        if (fp === requestedFile)
++        // [local patch] Separator/case-insensitive compare (see the caller).
++        if (toForwardSlash(fp).toLowerCase() === toForwardSlash(requestedFile).toLowerCase())
+             continue;
+         const current = bestScore.get(fp);
+         if (current === undefined || r.score > current) {
+diff --git a/pristine/dist/opencode/tools.js b/patched/dist/opencode/tools.js
+index 2d1ae3b..232b78b 100644
+--- a/pristine/dist/opencode/tools.js
++++ b/patched/dist/opencode/tools.js
+@@ -253,6 +253,72 @@ export function createFindUsagesTool(options) {
+         }
+         return usages;
+     }
++    /**
++     * [local patch] True when the match sits inside an import/require module
++     * specifier, e.g. the `Sidebar` in `from "./Sidebar.module.css"`. That is a
++     * path segment, not a reference to the symbol.
++     */
++    function isInModuleSpecifier(line, index) {
++        const specifierPattern = /(?:from|require\s*\()\s*(['"])([^'"]*)\1/g;
++        let m;
++        while ((m = specifierPattern.exec(line)) !== null) {
++            const start = m.index + m[0].length - m[2].length - 1;
++            const end = start + m[2].length;
++            if (index >= start && index <= end)
++                return true;
++        }
++        return false;
++    }
++    /**
++     * [local patch] Re-derive usages from the file on disk.
++     *
++     * Indexed chunks are stored with the import/declaration header stripped and
++     * with start/end lines that do not map 1:1 onto the file (TypeScript/TSX
++     * especially), so line numbers taken from chunk text drift and references
++     * inside the stripped imports are invisible. The file is authoritative when
++     * it can be read; chunk text remains the fallback for unreadable files.
++     *
++     * @returns The usages, or undefined when the file cannot be read.
++     */
++    function usagesFromDisk(filePath, symbol) {
++        let content;
++        try {
++            content = readFileSync(filePath, "utf-8");
++        }
++        catch {
++            return undefined;
++        }
++        const lines = content.split(/\r?\n/);
++        const defPattern = new RegExp(`(?:function|class|interface|type|enum|const|let|var|def|fun|fn)\\s+${escapeRegex(symbol)}\\b`);
++        let definitionLine;
++        for (let i = 0; i < lines.length; i++) {
++            if (defPattern.test(lines[i])) {
++                definitionLine = i + 1;
++                break;
++            }
++        }
++        const symbolPattern = new RegExp(`\\b${escapeRegex(symbol)}\\b`);
++        const usages = [];
++        for (let i = 0; i < lines.length; i++) {
++            const line = lines[i];
++            const lineNum = i + 1;
++            if (definitionLine !== undefined && lineNum === definitionLine)
++                continue;
++            const match = symbolPattern.exec(line);
++            if (!match)
++                continue;
++            if (isInModuleSpecifier(line, match.index))
++                continue;
++            const ctxStart = Math.max(0, i - 2);
++            const ctxEnd = Math.min(lines.length, i + 3);
++            usages.push({
++                line: lineNum,
++                content: line.trimEnd(),
++                context: lines.slice(ctxStart, ctxEnd).map((l) => l.trimEnd()),
++            });
++        }
++        return usages;
++    }
+     async function searchViaKeywordIndex(symbol, topK) {
+         if (!keywordIndex)
+             return [];
+@@ -273,6 +339,43 @@ export function createFindUsagesTool(options) {
+     function escapeRegex(s) {
+         return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+     }
++    /** [local patch] Forward-slash path, so both index sources compare equal. */
++    function normPath(p) {
++        return String(p ?? "").replace(/\\/g, "/");
++    }
++    /** [local patch] Mirrors CODE_SEARCH_FILTER: regular chunks only, never quirks. */
++    function isCodeChunk(chunk) {
++        return (chunk?.metadata?.kind ?? "") === "";
++    }
++    /**
++     * [local patch] Exact-token scan over every indexed chunk.
++     *
++     * Retrieval ranking is not a reliable way to find *references*: the file that
++     * actually uses a symbol usually ranks below dozens of prose/CSS chunks that
++     * merely mention the word, so the tool reported "no reference lines found" for
++     * symbols that are clearly referenced (e.g. `Sidebar` used in MainLayout.tsx).
++     * The keyword index holds every indexed chunk in memory, so scan it directly
++     * and treat retrieval as the fallback for when the index is unavailable.
++     */
++    function scanIndexedChunks(symbol, pathHint) {
++        if (!keywordIndex || !keywordIndex.chunkMap)
++            return [];
++        const pattern = new RegExp(`\\b${escapeRegex(symbol)}\\b`);
++        const hint = pathHint ? normPath(pathHint).toLowerCase() : undefined;
++        const hits = [];
++        for (const chunk of keywordIndex.chunkMap.values()) {
++            if (!chunk?.content || !isCodeChunk(chunk))
++                continue;
++            const filePath = normPath(chunk.metadata?.filePath);
++            if (!filePath)
++                continue;
++            if (hint && !filePath.toLowerCase().includes(hint))
++                continue;
++            if (pattern.test(chunk.content))
++                hits.push({ chunk, score: 0 });
++        }
++        return hits;
++    }
+     return tool({
+         description: "Find usages and references of a symbol (function, variable, class, etc.) " +
+             "across the indexed codebase. REQUIRED before editing any function, variable, or class — " +
+@@ -286,20 +389,26 @@ export function createFindUsagesTool(options) {
+             const symbolName = args.symbolName.trim();
+             const topK = args.topK ?? 30;
+             try {
+-                // Phase 1: keyword index search (fast, precise)
+-                const kwResults = await searchViaKeywordIndex(symbolName, topK);
+-                // Phase 2: vector store search (broader)
+-                const vsResults = await searchViaVectorStore(symbolName, topK * 2);
+-                // Merge results: prefer keyword matches, deduplicate
++                // Phase 1: exact-token scan over every indexed chunk (local patch).
++                // Retrieval runs only as a fallback, so the tool cannot silently
++                // miss references the index does contain.
++                const exactResults = scanIndexedChunks(symbolName, args.pathHint);
++                // Phase 2: keyword index search (fast, precise)
++                const kwResults = exactResults.length > 0 ? [] : await searchViaKeywordIndex(symbolName, topK);
++                // Phase 3: vector store search (broader)
++                const vsResults = exactResults.length > 0 ? [] : await searchViaVectorStore(symbolName, topK * 2);
++                // Merge results: prefer exact/keyword matches, deduplicate
+                 const seen = new Set();
+                 const merged = [];
+                 const addIfNew = (r) => {
+-                    const key = `${r.chunk.metadata.filePath}:${r.chunk.metadata.startLine}`;
++                    const key = `${normPath(r.chunk.metadata.filePath)}:${r.chunk.metadata.startLine}`;
+                     if (seen.has(key))
+                         return;
+                     seen.add(key);
+                     merged.push(r);
+                 };
++                for (const r of exactResults)
++                    addIfNew(r);
+                 for (const r of kwResults)
+                     addIfNew(r);
+                 for (const r of vsResults)
+@@ -312,8 +421,19 @@ export function createFindUsagesTool(options) {
+                     };
+                 }
+                 const fileGroups = new Map();
++                // [local patch] One file must produce one group even when its chunks
++                // arrive from both sources (keyword index vs vector store), and the
++                // optional pathHint must actually be honoured - it was declared in the
++                // tool schema but never used.
++                const pathHintKey = args.pathHint ? normPath(args.pathHint).toLowerCase() : undefined;
++                const MAX_USAGE_LINES = 300;
++                let totalUsages = 0;
++                let truncated = false;
+                 for (const result of merged) {
+                     const m = result.chunk.metadata;
++                    const fileKey = normPath(m.filePath);
++                    if (pathHintKey && !fileKey.toLowerCase().includes(pathHintKey))
++                        continue;
+                     const lines = result.chunk.content.split("\n");
+                     // Try to find where the symbol is *defined* in this chunk
+                     const defPattern = new RegExp(`(?:function|class|interface|type|enum|const|let|var|def|fun|fn)\\s+${escapeRegex(symbolName)}\\b`);
+@@ -327,17 +447,49 @@ export function createFindUsagesTool(options) {
+                     const usages = extractUsageLines(lines, symbolName, definitionLine);
+                     if (usages.length === 0)
+                         continue;
+-                    let group = fileGroups.get(m.filePath);
++                    let group = fileGroups.get(fileKey);
+                     if (!group) {
+-                        group = { filePath: m.filePath, language: m.language, usages: [] };
+-                        fileGroups.set(m.filePath, group);
++                        group = { filePath: fileKey, language: m.language, usages: [] };
++                        fileGroups.set(fileKey, group);
+                     }
+                     for (const u of usages) {
++                        if (totalUsages >= MAX_USAGE_LINES) {
++                            truncated = true;
++                            break;
++                        }
+                         // Avoid duplicates within the same file
+                         if (!group.usages.some((g) => g.line === u.line)) {
+                             group.usages.push(u);
++                            totalUsages++;
+                         }
+                     }
++                    if (truncated)
++                        break;
++                }
++                // [local patch] Prefer the file on disk over chunk text (see
++                // usagesFromDisk) and drop groups whose file holds no real reference.
++                for (const [groupKey, group] of fileGroups) {
++                    const fromDisk = usagesFromDisk(group.filePath, symbolName);
++                    if (fromDisk === undefined)
++                        continue;
++                    if (fromDisk.length === 0)
++                        fileGroups.delete(groupKey);
++                    else
++                        group.usages = fromDisk;
++                }
++                // Enforce the output cap after disk refinement.
++                let keptUsages = 0;
++                for (const [groupKey, group] of fileGroups) {
++                    if (keptUsages >= MAX_USAGE_LINES) {
++                        fileGroups.delete(groupKey);
++                        truncated = true;
++                        continue;
++                    }
++                    if (keptUsages + group.usages.length > MAX_USAGE_LINES) {
++                        group.usages = group.usages.slice(0, MAX_USAGE_LINES - keptUsages);
++                        truncated = true;
++                    }
++                    keptUsages += group.usages.length;
+                 }
+                 if (fileGroups.size === 0) {
+                     return {
+@@ -350,15 +502,17 @@ export function createFindUsagesTool(options) {
+                 const lines = [];
+                 const totalMatches = [...fileGroups.values()].reduce((s, g) => s + g.usages.length, 0);
+                 lines.push(`**Usages of \`${symbolName}\`** — ${totalMatches} references across ${fileGroups.size} files\n`);
+-                for (const [filePath, group] of fileGroups) {
++                for (const [filePath, group] of [...fileGroups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+                     // Sort usages by line number
+                     group.usages.sort((a, b) => a.line - b.line);
+                     lines.push(`### ${filePath} (${group.language})\n`);
+                     lines.push("| Line | Code |");
+                     lines.push("|------|------|");
+                     for (const usage of group.usages) {
+-                        const ctx = usage.context;
+-                        const codeLine = ctx[Math.min(2, ctx.length - 1)] ?? usage.content;
++                        // [local patch] Report the matched line itself. The previous
++                        // context[2] lookup assumed two context lines above the match
++                        // and therefore mis-reported references near the top of a file.
++                        const codeLine = usage.content;
+                         const escaped = codeLine.length > 100
+                             ? codeLine.slice(0, 97) + "..."
+                             : codeLine;
+@@ -367,6 +521,8 @@ export function createFindUsagesTool(options) {
+                     lines.push("");
+                 }
+                 lines.push("---\n");
++                if (truncated)
++                    lines.push(`_Output capped at ${MAX_USAGE_LINES} reference lines - narrow with \`pathHint\`._\n`);
+                 lines.push(`_Use \`get_file_skeleton\` for a quick file overview or \`search_semantic\` for broader context._`);
+                 return {
+                     title: `Usages of "${symbolName}" (${totalMatches} matches)`,
+diff --git a/pristine/dist/plugin.js b/patched/dist/plugin.js
+index b36d0c5..e161f0e 100644
+--- a/pristine/dist/plugin.js
++++ b/patched/dist/plugin.js
+@@ -553,7 +553,13 @@ export function createRagHooks(options) {
+                 const topK = args.topK ?? effectiveCfg.retrieval.topK;
+                 const explain = args.explain ?? false;
+                 const fileExtensions = normalizeFileExtensions(args.fileExtensions);
+-                const filter = fileExtensions.length > 0 ? { fileExtensions } : undefined;
++                // [local patch] Always keep the code-search kind filter. Quirk memory
++                // is stored as chunks with kind "quirk"; without the filter the semantic
++                // tool returned quirks as if they were code results (the CLI query path,
++                // the MCP handler and the read tool already pass the same filter).
++                // Mirrors mcp/handlers.js: fileExtensions merged with, not replacing,
++                // CODE_SEARCH_FILTER.
++                const filter = fileExtensions.length > 0 ? { ...CODE_SEARCH_FILTER, fileExtensions } : CODE_SEARCH_FILTER;
+                 const results = await loadRetrievedResults(query, embedder, store, effectiveCfg, dependencies.retrieve, topK, undefined, keywordIndex, effectiveCfg.embedding.queryPrefix, explain, filter, getRerankerFor(effectiveCfg.reranking) ?? undefined, effectiveCfg.reranking);
+                 if (results.length === 0) {
+                     appendVerboseLog(options.logFilePath, CONTEXT_TOOL_NAME, "retrieval completed with no matching chunks", {
+diff --git a/pristine/dist/retriever/keyword-index.js b/patched/dist/retriever/keyword-index.js
+index 1666dbc..a20ebbf 100644
+--- a/pristine/dist/retriever/keyword-index.js
++++ b/patched/dist/retriever/keyword-index.js
+@@ -100,8 +100,20 @@ export class KeywordIndex {
+     addChunks(chunks) {
+         for (const chunk of chunks) {
+             const id = chunk.id;
+-            this.chunkMap.set(id, chunk);
++            // [local patch] Store the path with forward slashes - the same form
++            // the vector store persists. Raw Windows paths gave one file two
++            // identities ("C:\..." here vs "C:/..." from the vector store),
++            // which broke every consumer that compares or groups by filePath:
++            // find_usages listed the same file twice with doubled counts, the
++            // read tool's context filter dropped keyword-origin chunks, and the
++            // related-files list re-suggested the file being read.
++            // Mutated in place on purpose: the pipeline keeps a reference to the
++            // chunk and mutates chunk.description after addChunks.
+             const fileKey = normalizeFilePath(chunk.metadata.filePath);
++            if (chunk.metadata.filePath !== fileKey) {
++                chunk.metadata.filePath = fileKey;
++            }
++            this.chunkMap.set(id, chunk);
+             let ids = this.fileToIds.get(fileKey);
+             if (!ids) {
+                 ids = new Set();
+@@ -293,7 +305,7 @@ export class KeywordIndex {
+                     id: chunk.id,
+                     content: chunk.content,
+                     description: chunk.description ?? "",
+-                    filePath: chunk.metadata.filePath,
++                    filePath: normalizeFilePath(chunk.metadata.filePath),
+                     startLine: chunk.metadata.startLine,
+                     endLine: chunk.metadata.endLine,
+                     language: chunk.metadata.language,

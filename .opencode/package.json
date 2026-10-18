@@ -1,0 +1,15 @@
+{
+  "name": ".opencode",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "node patches/apply-rag-patches.mjs",
+    "rag:patch": "node patches/apply-rag-patches.mjs",
+    "rag:check": "node patches/apply-rag-patches.mjs --check"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.18.18",
+    "@opentui/solid": "0.5.17",
+    "opencode-rag-plugin": "2.4.4"
+  }
+}
