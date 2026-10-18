@@ -28,7 +28,7 @@
 
 
 .sidebarItemPlaylist .sidebarItemTitle {
-    color: var(--action-secondary);
+    color: var(--action-accent-secondary);
 }
 
 .sidebarItemPlaylist .sidebarItemIcon {
@@ -43,12 +43,12 @@
 }
 
 .sidebarItem:hover {
-    background-color: var(--action-primary);
+    background-color: var(--action-accent-primary);
 
 }
 
 .sidebarItemActive {
-    background-color: var(--action-primary-hover);
+    background-color: var(--action-accent-primary-hover);
 }
 
 .sidebarItemActive .sidebarItemTitle  {

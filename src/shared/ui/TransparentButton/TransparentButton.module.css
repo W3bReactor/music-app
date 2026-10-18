@@ -1,7 +1,6 @@
 .btnTransparent {
     border: 1px solid var(--border-tertiary);
     border-radius: 4px;
-    padding: 8px 24px;
     background-color: transparent;
     color: var(--text-accent-secondary);
     cursor: pointer;
@@ -14,6 +13,6 @@
 }
 
 .btnTransparent:hover {
-    background-color: var(--action-secondary);
+    background-color: var(--action-accent-secondary);
     color: var(--text-primary);
 }

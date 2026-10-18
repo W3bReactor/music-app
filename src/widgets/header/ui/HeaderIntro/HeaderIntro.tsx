@@ -1,5 +1,5 @@
 import styles from "./HeaderIntro.module.css";
-import { PurpleButton, TransparentButton } from "@/shared/ui";
+import { PinkButton, TransparentButton } from "@/shared/ui";
 
 export const HeaderIntro = () => {
   return (
@@ -13,8 +13,10 @@ export const HeaderIntro = () => {
         interruptions. Whatever your taste in music, we have it all for you!
       </p>
       <div className={styles.headerIntroBtns}>
-        <PurpleButton>Discover Now</PurpleButton>
-        <TransparentButton>Create Playlist</TransparentButton>
+        <PinkButton className={styles.headerIntroBtn}>Discover Now</PinkButton>
+        <TransparentButton className={styles.headerIntroBtn}>
+          Create Playlist
+        </TransparentButton>
       </div>
     </div>
   );

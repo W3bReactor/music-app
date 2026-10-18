@@ -1,0 +1,22 @@
+.form {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.formBtn {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    padding: 8px 36px;
+}
+
+.formText {
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+}
+
+.formLink {
+    color: var(--text-accent-secondary);
+    text-decoration: none;
+}

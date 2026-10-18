@@ -1,0 +1,36 @@
+.formItem {
+    display: flex;
+    flex-direction: column;
+    &:not(:last-child) {
+        margin-bottom: 12px;
+    }
+}
+
+.formLabel {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.formInput {
+    outline: none;
+    background-color: var(--action-secondary);
+    border: 0.50px solid var(--border-secondary);
+    border-radius: 4px;
+    padding: 12px 8px;
+    color: var(--text-primary);
+    &::placeholder {
+        font-weight: 300;
+        font-size: 12px;
+        text-align: justify;
+        color: var(--text-primary);
+        opacity: 0.75;
+    }
+}
+
+.formError {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--feeback-error);
+}

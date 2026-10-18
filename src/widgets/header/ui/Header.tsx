@@ -1,5 +1,5 @@
 import styles from "./Header.module.css";
-import { SvgIcon } from "@/shared/ui";
+import { PinkButton, SvgIcon } from "@/shared/ui";
 import Link from "next/link";
 import Image from "next/image";
 import AvatarIcon from "./avatar.svg";
@@ -33,20 +33,30 @@ export const Header = ({ isIntro = false }: HeaderProps) => {
             </Link>
           </li>
         </ul>
-        {/* Возможно перестроить структуру, чтобы arrow_down отдельно была кнопкой, а остальное - ссылкой*/}
-        <Link href={"/profile"} className={styles.headerProfile}>
-          <Image
-            src={AvatarIcon}
-            width={40}
-            height={40}
-            alt={"avatar"}
-            className={styles.headerProfileAvatar}
-          />
-          <button className={styles.headerProfileBtn}>
-            <span className={styles.headerProfileName}>User Name</span>
-            <SvgIcon name={"arrow_down"} size={24} />
-          </button>
-        </Link>
+
+        {/*
+          На данный момент для удобства было совмещено
+          TODO: Исправить при реализации полного процесса регистрации/авторизации
+        */}
+        <div className={styles.headerProfileItems}>
+          <PinkButton href={"/register"} className={styles.headerAuthBtn}>
+            Sign Up & Login
+          </PinkButton>
+          {/* Возможно перестроить структуру, чтобы arrow_down отдельно была кнопкой, а остальное - ссылкой*/}
+          <Link href={"/profile"} className={styles.headerProfile}>
+            <Image
+              src={AvatarIcon}
+              width={40}
+              height={40}
+              alt={"avatar"}
+              className={styles.headerProfileAvatar}
+            />
+            <button className={styles.headerProfileBtn}>
+              <span className={styles.headerProfileName}>User Name</span>
+              <SvgIcon name={"arrow_down"} size={24} />
+            </button>
+          </Link>
+        </div>
       </div>
       {isIntro && <HeaderIntro />}
     </header>

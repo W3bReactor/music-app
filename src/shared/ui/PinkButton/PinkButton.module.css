@@ -5,15 +5,15 @@
     font-size: 16px;
     text-align: center;
     color: var(--text-primary);
-    background-color: var(--action-primary);
-    padding: 8px 24px;
+    background-color: var(--action-accent-primary);
     outline: none;
     cursor: pointer;
     text-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    text-decoration: none;
 
     transition: background-color 0.2s linear;
 }
 
 .btnPurple:hover {
-    background-color: var(--action-primary-hover);
+    background-color: var(--action-accent-primary-hover);
 }
