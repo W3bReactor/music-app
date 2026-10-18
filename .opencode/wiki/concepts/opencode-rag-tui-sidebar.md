@@ -9,9 +9,8 @@ lastReviewed: 2026-10-18
 
 Question this page answers: *"where is the RAG button in the sidebar?"*
 
-> **Status 2026-10-18: fixed locally.** The missing `@opentui/solid` is now installed into the plugin package (see
-> *Fix applied* below). The panel needs a restart of the background server (`opencode service restart`) to appear;
-> re-do the install after any plugin update.
+> **Status 2026-10-18: fixed and pinned.** `@opentui/solid` is a declared exact dependency of `.opencode`, so it
+> survives reinstalls; the panel needs a restart of the background server (`opencode service restart`) to appear.
 
 ## There is no button
 
@@ -54,11 +53,13 @@ work while the *panel* is missing.
 
 ## Fix applied (2026-10-18)
 
-Install the missing package **into the plugin package itself** (`--no-save`), so it resolves from the real path the TUI
-plugin is loaded from — the workspace `.opencode/node_modules` junction does not help, Node follows the realpath:
+`@opentui/solid` is now a **declared, exact dependency** of the workspace install (`"@opentui/solid": "0.5.17"` in
+`.opencode/package.json`), so it is installed next to the plugin and resolves from the plugin's real path. The original
+patch was a `--no-save` install into the global package:
 
 ```powershell
-npm install --no-save --prefix "C:\Users\W3bRe\AppData\Roaming\npm\node_modules\opencode-rag-plugin" "@opentui/solid@^0.5.11"
+# historical, replaced by the declared dependency above
+npm install --no-save --prefix "...\npm\node_modules\opencode-rag-plugin" "@opentui/solid@^0.5.11"
 ```
 
 This resolved to `@opentui/solid@0.5.17` plus its `@opentui/core` and `solid-js` peers. Verification (the import that
@@ -77,10 +78,11 @@ Note: after the install the TUI run started clean (no new WARN), yet the UI stil
 card with reference `err_546f0d61` — that reference is the 19:25 log entry from before the fix, kept in the stale server
 process's plugin registry. Matching the reference against the log timestamp tells you whether an error card is current.
 
-Caveats: `npm install --no-save` means a plugin update/reinstall wipes it — re-run the command. `@opentui/core` declares
-`bun >= 1.3.0 || node >= 26.4.0`, so the panel only renders on opencode's Bun runtime (Node 22 in this workspace cannot
-run it directly). The host app matters too: this slot exists only in the **terminal TUI**; the desktop/web app renders no
-such panel.
+Caveats: the dependency is **pinned on purpose** — it must match the version the installed opencode TUI expects, so a
+plain `npm update` is not the answer; if the panel vanishes after an opencode upgrade, revisit this pin first.
+`@opentui/core` declares `bun >= 1.3.0 || node >= 26.4.0`, so the panel only renders on opencode's Bun runtime (Node 22
+in this workspace cannot run it directly, and `npm install` prints an EBADENGINE warning that is expected). The host app
+matters too: this slot exists only in the **terminal TUI**; the desktop/web app renders no such panel.
 
 ## Related
 

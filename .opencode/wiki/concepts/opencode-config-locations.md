@@ -17,7 +17,9 @@ and MCP servers in the legacy one are still loaded:
 | `~/.local/share/opencode/` | State: `opencode.db` (SQLite: sessions/messages/parts), `log/opencode.log`, `storage/`, `snapshot/`, `shell/`, `tool-output/` |
 
 Project-level config, in resolution order of relevance: `opencode.json` (repo root, absent here) →
-`.opencode/opencode.json` (schema only here) → `.opencode/tui.json` (registers `./plugins/rag-tui.js`).
+`.opencode/opencode.json` (schema only here) → `.opencode/tui.json` (registers `./plugins/rag-tui.js`). The RAG plugin
+itself is a pinned workspace dependency in `.opencode/package.json` — see
+[[wiki/concepts/opencode-rag-local-patches]].
 
 ## The `nextjs-mcp` incident (fixed 2026-10-18)
 

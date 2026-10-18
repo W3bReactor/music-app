@@ -1,25 +1,33 @@
 # Local OpenCodeRAG patches
 
 These patches fix OpenCodeRAG behaviour that actively hurts the agent workflow in
-this workspace. They target the **installed copy** of `opencode-rag-plugin`
-(the global npm install that `.opencode/node_modules/opencode-rag-plugin` is a
-junction to), so they are lost on every plugin update/reinstall.
+this workspace. As of 2026-10-18 the plugin is installed **into this workspace**
+(`.opencode/package.json`, exact version `2.4.4`) instead of relying on the global
+npm install, so an update can no longer silently replace the patched code.
 
 ```
-node .opencode/patches/apply-rag-patches.mjs        # idempotent, needs `git` on PATH
+cd .opencode
+npm install              # installs the pinned plugin + @opentui/solid, then patches (postinstall)
+npm run rag:check        # read-only: version, patch markers, index path normalisation
+npm run rag:patch        # re-apply explicitly (idempotent)
+node patches/apply-rag-patches.mjs --index-only    # only normalise keyword-index.json
 ```
+
+`postinstall` runs `node patches/apply-rag-patches.mjs`, so a clean
+`npm install` is self-healing. Note that `npm install --ignore-scripts` skips it —
+run `npm run rag:patch` afterwards (or use `rag:check` to detect it).
 
 After applying, **restart the opencode background server** — that process imports
-the plugins and hosts the agent tools, so it keeps the old modules in memory:
+the plugins and hosts the agent tools:
 
 ```powershell
 opencode service restart      # opencode service status -> http://127.0.0.1:45278
 ```
 
 Closing/reopening the TUI or the desktop app is **not** enough: it attaches to the
-same long-lived server (the log shows a new `role=cli` run while the old
-`role=server` run keeps serving), so both the tools and the cached
-`failed to load plugin` error card stay stale.
+same long-lived server (a new `role=cli` run while the old `role=server` run keeps
+serving), so both the tools and any cached `failed to load plugin` error card stay
+stale.
 
 ## What the patch changes (baseline: opencode-rag-plugin 2.4.4)
 
@@ -33,31 +41,39 @@ same long-lived server (the log shows a new `role=cli` run while the old
 `keyword-index.json` also needs a one-time path normalization; the script does it
 (step 2). Existing indexes stay usable afterwards — no rebuild required.
 
+## Safety rails in the script
+
+- **Version guard** — the installed `package.json` version must be exactly `2.4.4`
+  (the baseline the diff was generated from). Otherwise it exits 1 without touching
+  anything, instead of half-applying a diff written for another build.
+- **All-or-nothing** — the whole diff is validated with `git apply --check` before
+  a single byte is written; a mismatch leaves the tree untouched.
+- **Idempotent** — an already patched install reports `patches already applied` and
+  does nothing. A *mixed* tree (some files patched, some not) is refused.
+- **Post-apply verification** — after `git apply`, all four files must contain the
+  `[local patch]` marker, otherwise it exits 1.
+- `--check` is read-only (also checks `keyword-index.json` for backslash paths).
+
 ## TUI sidebar panel (`@opentui/solid`)
 
 Separate upstream packaging bug (MrDoe/OpenCodeRAG#35): `dist/tui.js` imports
-`@opentui/solid`, which is only listed in `devDependencies`, so the TUI sidebar
-plugin fails to load with `Cannot find package '@opentui/solid'`. Install it next
-to the plugin (a reinstall wipes it too):
-
-```powershell
-npm install --no-save --prefix "<plugin dir>" "@opentui/solid@^0.5.11"
-```
-
-`<plugin dir>` is the path printed by `apply-rag-patches.mjs`, e.g.
-`C:\Users\W3bRe\AppData\Roaming\npm\node_modules\opencode-rag-plugin`.
+`@opentui/solid`, which the plugin only lists in `devDependencies`. It is now a
+**declared, exact dependency** of `.opencode` (`"@opentui/solid": "0.5.17"`), so it
+is installed next to the plugin and resolves from the plugin's real path. Pin it:
+the version has to match what the current opencode TUI expects — if the panel
+disappears after an opencode update, check this dependency first.
 
 ## Verification
 
 ```powershell
-# modules must parse
-node --input-type=module -e "await import('file:///.../dist/opencode/tools.js')"
+cd .opencode
+npm run rag:check
 
-# TUI shim must import (used to fail on @opentui/solid)
+# modules must parse and resolve
 node --input-type=module -e "await import('file:///C:/Users/W3bRe/Desktop/Projects/music-app/.opencode/plugins/rag-tui.js')"
 ```
 
-Then, after an opencode restart:
+Then, after `opencode service restart`:
 
 - `find_usages("Sidebar")` → 3 references in 2 files with correct line numbers.
 - `search_semantic("<something quirk-flavoured>")` → no quirk chunks in the results.
@@ -66,9 +82,16 @@ Then, after an opencode restart:
 ## Notes
 
 - Patched code is marked with `[local patch]` comments — `grep -n "\[local patch\]"`
-  inside the plugin `dist/` shows the full local footprint (4 files).
+  inside `.opencode/node_modules/opencode-rag-plugin/dist` shows the local footprint
+  (4 files, 14 markers).
 - The diff was generated against the pristine 2.4.4 tarball
   (`npm pack opencode-rag-plugin@2.4.4`) and verified to reproduce the patched
-  files byte-for-byte.
+  files byte-for-byte. Use `-p2` plus `--directory=<plugin dir relative to the repo
+  root>`: `git apply` run from a subdirectory of a work tree silently *skips*
+  entries outside it and still exits 0.
+- Do **not** use `npm install --prefix .opencode`: npm then adds the parent package
+  (`"music-app": "file:.."`) as a dependency of `.opencode`. `cd .opencode` first.
+- Bumping the plugin version is now deliberate: change the pin, then regenerate the
+  diff against the new tarball and re-verify the four hunks.
 - Upstream-worthy: items 1-4 are all portability/correctness bugs, not
   workspace-specific tweaks.

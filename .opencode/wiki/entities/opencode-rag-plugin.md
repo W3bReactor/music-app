@@ -22,9 +22,11 @@ exposes semantic retrieval tools to the agent. It exists to replace whole-file r
 | Skill | `.opencode/skills/opencode-rag/SKILL.md` | Tool-usage decision tree |
 | Directive | `AGENTS.md` (between `<!-- BEGIN opencode-rag -->` markers) | Re-injected by `opencode-rag init` |
 
-The package is reached through a junction chain: workspace `.opencode/node_modules/opencode-rag-plugin` →
-`~/.opencode/node_modules/opencode-rag-plugin` → global npm install. See [[wiki/concepts/opencode-rag-tui-sidebar]] for
-why that matters when resolving dependencies.
+The package is a **pinned local install**: `.opencode/package.json` declares `opencode-rag-plugin` `2.4.4` (exact) plus
+`@opentui/solid` `0.5.17`, the lockfile is committed and `node_modules` is gitignored. That replaced the old junction
+chain (`.opencode/node_modules` → `~/.opencode/node_modules` → global npm install), which made dependency resolution and
+updates fragile. `.opencode/node_modules/opencode-rag-plugin` is patched locally by `postinstall`. See
+[[wiki/concepts/opencode-rag-local-patches]].
 
 ## Tools exposed to the agent
 
@@ -77,8 +79,8 @@ OpenCode V2 still reads for `mcp` — are mapped in [[wiki/concepts/opencode-con
 
 ## Gotchas
 
-- Patched plugin code is lost on every update/reinstall: re-run `node .opencode/patches/apply-rag-patches.mjs` (and the
-  `@opentui/solid` install) afterwards.
+- The patches live in the pinned local install, so `npm install` in `.opencode` re-applies them via `postinstall`; if
+  scripts were skipped (`npm install --ignore-scripts`), run `npm run rag:patch` and check with `npm run rag:check`.
 - The running opencode process caches plugin modules — patches only apply after restarting the **background server**
   (`opencode service restart`), not after reopening the TUI/desktop (it reattaches to the same server process).
 - `autoIndex` now needs the LM Studio endpoint (`http://26.102.192.223:1234/v1`) to be reachable, otherwise re-embeds

@@ -55,3 +55,23 @@ Also traced the unrelated `nextjs-mcp … 404` warning to `~/.opencode/opencode.
 an earlier session had added `@modelcontextprotocol/server-nextjs`, a package that does not exist on npm. Removed the
 `mcp` block (backup `opencode.json.bak`); the working `next-devtools` server in `~/.config/opencode/opencode.jsonc` is
 untouched. Filed [[wiki/concepts/opencode-config-locations]].
+
+## [2026-10-18] decision | Local pinned plugin install + self-healing patches
+Made the RAG tooling survive updates instead of relying on the global npm copy:
+
+- Backed up `rag_db` to `.opencode/patches/backups/rag_db-2026-10-18` (gitignored) and committed the whole tooling set
+  (`.opencode/{patches,plugins,skills,wiki,*.json}`, `opencode-rag.json`, `AGENTS.md`) as `6949dc9`.
+- `.opencode/package.json` now pins `opencode-rag-plugin@2.4.4` and `@opentui/solid@0.5.17` exactly, with
+  `postinstall: node patches/apply-rag-patches.mjs`; `.opencode/node_modules` replaced the old junction chain and
+  `package-lock.json` is committed (no longer ignored).
+- `apply-rag-patches.mjs` hardened: exact-version guard (exit 1, no writes), `git apply --check` all-or-nothing, mixed
+  patch state refused, post-apply marker verification, `--check` read-only mode. It now resolves the local install and
+  runs `git apply` from the repo toplevel with `--directory=…` because git silently *skips* patches from a subdirectory
+  and still exits 0.
+- Verified: local patched files hash-identical to the previously verified global copy (14 markers), shims import,
+  `rag:check` green, postinstall idempotent, version-mismatch guard exits 1 without touching the fake target,
+  `@opentui/solid` resolves from the plugin's `dist/tui.js`.
+
+Updated [[wiki/concepts/opencode-rag-local-patches]], [[wiki/entities/opencode-rag-plugin]],
+[[wiki/concepts/opencode-rag-tui-sidebar]] and `.opencode/patches/README.md`. Pending: one `opencode service restart`
+so the server loads the local copy.

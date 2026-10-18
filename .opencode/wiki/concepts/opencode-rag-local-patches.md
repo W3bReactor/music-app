@@ -1,22 +1,36 @@
 ---
 title: OpenCodeRAG local patches (workspace fix set)
-tags: [rag, plugin, patches, maintenance, windows]
-sourceRefs: [".opencode/patches/README.md", ".opencode/patches/opencode-rag-plugin-2.4.4-local.diff", ".opencode/patches/apply-rag-patches.mjs", "opencode-rag.json"]
+tags: [rag, plugin, patches, maintenance, windows, pinning]
+sourceRefs: [".opencode/patches/README.md", ".opencode/patches/opencode-rag-plugin-2.4.4-local.diff", ".opencode/patches/apply-rag-patches.mjs", ".opencode/package.json", "opencode-rag.json"]
 lastReviewed: 2026-10-18
 ---
 
 # OpenCodeRAG local patches
 
-This workspace patches the **installed** copy of `opencode-rag-plugin` (v2.4.4) to remove four behaviours that made the
-RAG tools actively misleading for an editing agent. Patches live in `.opencode/patches/`, apply to the global npm
-install, and are lost on every plugin update — hence the re-apply script.
+This workspace patches `opencode-rag-plugin` (v2.4.4) to remove four behaviours that made the RAG tools actively
+misleading for an editing agent. Since 2026-10-18 the plugin is a **pinned, workspace-local install** rather than a
+junction to the global npm package, so an upstream update can no longer silently replace the patched code.
+
+## Install model
 
 ```
-node .opencode/patches/apply-rag-patches.mjs     # idempotent; needs git on PATH
+.opencode/package.json      exact pins: opencode-rag-plugin 2.4.4, @opentui/solid 0.5.17, @opencode-ai/plugin 1.18.18
+.opencode/package-lock.json committed (reproducible install)
+.opencode/node_modules/     gitignored, ~600 packages, contains the patched plugin
+.opencode/plugins/*.js      shims importing ../node_modules/opencode-rag-plugin/dist/…
 ```
 
-Everything is marked with `[local patch]` comments in the plugin `dist/`, so
-`grep -rn "\[local patch\]" "<plugin dir>\dist"` shows the whole local footprint (4 files, 14 markers).
+`postinstall` runs the patch script, so `npm install` is self-healing:
+
+```powershell
+cd .opencode
+npm install            # install + postinstall (patches)
+npm run rag:check      # read-only: version, markers, keyword-index paths
+npm run rag:patch      # explicit re-apply (idempotent)
+```
+
+Updating the plugin is now a deliberate act: bump the pin, regenerate the diff against the new tarball, re-verify the
+four hunks. A global `npm update -g opencode-rag-plugin` no longer affects this workspace.
 
 ## What was broken → what the patch does
 
@@ -31,39 +45,46 @@ Data migration: `keyword-index.json` also needed its existing entries normalized
 rebuild required). The diff was generated against the pristine `npm pack opencode-rag-plugin@2.4.4` tarball and verified
 to reproduce the patched files byte-for-byte.
 
+## Safety rails in `apply-rag-patches.mjs`
+
+- **Version guard** — installed version must be exactly `2.4.4`, otherwise exit 1 and touch nothing (no half-applied
+  diff written for another build).
+- **All-or-nothing** — the whole diff is validated with `git apply --check` before writing.
+- **Idempotent** — already patched → "nothing to do"; a *mixed* tree is refused.
+- **Post-apply verification** — all four files must then contain the `[local patch]` marker, else exit 1. This is what
+  catches the silent no-op below.
+- `--check` is read-only and also flags `keyword-index.json` entries with backslash paths.
+
+## Operational notes
+
+- **Restart the background server, not the TUI.** `opencode service restart`; reopening the app attaches a new
+  `role=cli` run to the same long-lived `role=server` process, which keeps the old modules and any cached plugin error.
+- **`npm install --ignore-scripts`** skips the postinstall hook → run `npm run rag:patch`, or detect it with
+  `npm run rag:check`.
+- **Verify** by importing the modules directly (`node --input-type=module -e "await import(...)"`) or by calling
+  `createFindUsagesTool(...).execute(...)` with stub deps — that is how the fix was validated offline.
+- `node_modules` is gitignored; `package-lock.json` is committed on purpose (reproducible tree). `patches/backups/`
+  holds a gitignored snapshot of `rag_db` for rollback.
+
+## Gotchas learned the hard way
+
+- `git apply` run from a subdirectory of a work tree resolves paths against the repository root, prints
+  `Skipped patch 'dist/…'` for everything and **exits 0**. The script therefore runs git from the toplevel with
+  `--directory=.opencode/node_modules/opencode-rag-plugin`, and verifies markers afterwards.
+- `npm install --prefix .opencode` injected the parent package as `"music-app": "file:.."` (npm 10/Windows), created a
+  symlink cycle and skipped postinstall as expected. Use `cd .opencode; npm install`.
+- `@opentui/solid` must stay pinned to the version the installed opencode TUI expects — see
+  [[wiki/concepts/opencode-rag-tui-sidebar]].
+
 ## Why patch instead of waiting
 
 All four are portability/correctness bugs, not workspace preferences (item 2 is already fixed upstream in the MCP code
 path; item 1 is arguably the root cause of the `\` vs `/` reports). They are worth upstream reports —
 [[wiki/concepts/opencode-rag-tooling-notes]] tracks the status.
 
-## Operational notes
-
-- **Restart required — the *background server*, not the TUI.** Plugin modules are cached per process; the server process
-  (`opencode service status` → `http://127.0.0.1:45278`) imports the plugins and hosts the agent tools, and it outlives
-  TUI/desktop restarts. Reopening the app attaches a new `role=cli` run to the old `role=server` process, so patched code
-  still has no effect — and the server's cached plugin-error card (e.g. the pre-fix `err_546f0d61` for `rag-tui.js`)
-  keeps being displayed even though the plugin loads fine now. Use `opencode service restart`.
-  Verified 2026-10-18: after a TUI restart the log had no new `failed to load plugin` entry, yet in-session
-  `find_usages("Sidebar")` still returned the old failure while fresh `node` imports used the patched code.
-- **Re-apply after every plugin update/reinstall**, plus the `@opentui/solid` install below.
-- **Verify** by importing the modules directly (`node --input-type=module -e "await import(...)"`) or by calling
-  `createFindUsagesTool(...).execute(...)` with stub deps — that is how the fix was validated offline.
-
-## TUI sidebar (`@opentui/solid`)
-
-Same maintenance cycle, separate cause ([[wiki/concepts/opencode-rag-tui-sidebar]]): install the missing peer into the
-plugin package itself and restart.
-
-```powershell
-npm install --no-save --prefix "<plugin dir>" "@opentui/solid@^0.5.11"
-```
-
-Applied 2026-10-18 (resolved to 0.5.17 + `@opentui/core` + `solid-js`). The shim import now succeeds:
-`node --input-type=module -e "await import('file:///C:/Users/W3bRe/Desktop/Projects/music-app/.opencode/plugins/rag-tui.js')"`.
-
 ## Related
 
 - [[wiki/entities/opencode-rag-plugin]] — wiring, config, index status
 - [[wiki/concepts/opencode-rag-tooling-notes]] — measured tool behaviour before/after
-- [[wiki/concepts/opencode-rag-tui-sidebar]] — where the panel lives, how to open it
+- [[wiki/concepts/opencode-rag-tui-sidebar]] — where the panel lives, `@opentui/solid` pin
+- [[wiki/concepts/opencode-config-locations]] — config/state paths, MCP servers
