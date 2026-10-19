@@ -47,7 +47,7 @@ markers), so these are the numbers the agent actually gets:
 |---|---|
 | `find_usages("Sidebar")` | 3 references across 2 files (`MainLayout.tsx` L2/L14, `shared/ui/index.ts` L3) |
 | `find_usages("SidebarItem")` | 12 references across 1 file (`Sidebar.tsx` L2 import + 11 `<SidebarItem` sites) |
-| `find_usages("SvgIcon")` | 14 references across 7 files (`shared/ui/index.ts`, `SidebarItem`, `Footer` ×4, `AccentSelect`, `SearchInput`, `sprite.svg` comment, stray `LoginForm.js`) |
+| `find_usages("SvgIcon")` | 13 references across 6 files (`shared/ui/index.ts`, `SidebarItem`, `Footer` ×4, `AccentSelect`, `SearchInput`, `sprite.svg` comment) |
 | `search_semantic("… @opentui/solid …")` | only code/config chunks, no `kind: quirk` |
 | `read` whole file | body printed once, no self-chunk |
 | `npm run rag:check` | 4/4 files, 14 markers, index 313 chunks, 0 backslash paths |
