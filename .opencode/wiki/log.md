@@ -85,3 +85,11 @@ files using `SvgIcon`. `search_semantic` returns code/config chunks only (no qui
 (4/4 files, 14 markers, index 313 chunks, 0 backslash paths); `opencode-rag status` confirms embedder
 `text-embedding-qwen3-embedding-0.6b` @ 1024 dim = store dim. No `failed to load plugin` entries after 19:25 (all
 historical). Working tree clean at `2be20e7`.
+
+## [2026-10-19] refactor | Compiled `.js` duplicates removed
+Accidental WebStorm compile (project `tsconfig.json` has `noEmit: false`, CommonJS, no `outDir`) had emitted six `.js`
+files next to their `.ts/.tsx` sources. Removed on `refactor/remove-compiled-js` (`298e346`, 6 files / 270 deletions);
+`npx tsc --noEmit` clean, nothing imports the deleted paths. Re-indexed: 307 chunks / 85 files / 0 orphans, CLI no longer
+lists them. Note: the running server keeps the keyword index in memory, so `find_usages("SvgIcon")` kept returning the
+deleted `LoginForm.js` until `opencode service restart` — after that 13 refs / 6 files, as recorded in
+[[wiki/concepts/opencode-rag-tooling-notes]]. Owner does not want the tsconfig changed (one-off accident).
