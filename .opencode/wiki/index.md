@@ -7,6 +7,7 @@ Knowledge base for this workspace. Pages are interlinked with `[[wiki/...]]` lin
 | Page | Summary |
 |---|---|
 | [[wiki/entities/sidebar]] | `shared/ui/Sidebar` + `SidebarItem`: the left nav rail, its items, props and CSS variants |
+| [[wiki/entities/svg-icon]] | `shared/ui/SvgIcon`: the sprite-based icon primitive, its available ids and the dead `icons.tsx` |
 | [[wiki/entities/opencode-rag-plugin]] | The OpenCodeRAG plugin wired into this repo: server plugin + TUI plugin, config, index status |
 
 ## Concepts
@@ -17,6 +18,7 @@ Knowledge base for this workspace. Pages are interlinked with `[[wiki/...]]` lin
 | [[wiki/concepts/opencode-rag-tui-sidebar]] | Where the RAG sidebar panel lives, how to open it, and how the `@opentui/solid` load failure was fixed |
 | [[wiki/concepts/opencode-rag-tooling-notes]] | Field notes: which RAG tools pay off, measured failure modes (before/after the patches), working rules |
 | [[wiki/concepts/opencode-config-locations]] | Where OpenCode stores config/state on this machine (`~/.config/opencode` vs legacy `~/.opencode`), and the broken `nextjs-mcp` cleanup |
+| [[wiki/concepts/music-app-fsd-nextjs]] | The app itself: stack, FSD layers + App Router routing, public API, server/client split, measured command results, gaps |
 
 ## Sources
 

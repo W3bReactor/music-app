@@ -93,3 +93,28 @@ files next to their `.ts/.tsx` sources. Removed on `refactor/remove-compiled-js`
 lists them. Note: the running server keeps the keyword index in memory, so `find_usages("SvgIcon")` kept returning the
 deleted `LoginForm.js` until `opencode service restart` — after that 13 refs / 6 files, as recorded in
 [[wiki/concepts/opencode-rag-tooling-notes]]. Owner does not want the tsconfig changed (one-off accident).
+
+## [2026-10-20] ingest | The app itself: FSD + Next.js App Router
+Read-only pass over the application code (branch `docs/upgrade-agents-md`) to write agent rules. Confirmed: router in
+root `app/` with `(intro)`/`(basic)`/`(auth)` groups, every route file a thin `export default` wrapper around a
+`src/pages/<slice>` component; FSD layers in `src/` (`app`, `pages`, `widgets`, `features`, `shared`, no `entities`,
+no `api`/`lib` segments); `@/*` → `./src/*` so `@/app/...` is the FSD layer, not the router dir; dependency direction
+respected, only slice-internal imports violate the public API (`RegisterForm` → `shared/ui/AccentInput`, `ProfileFavorite`
+→ `MediaItem`/`GrayButton`, both because `src/shared/ui/index.ts` is incomplete). `"use client"` in exactly 3 files.
+Measured: `npx tsc --noEmit --incremental false` → exit 0; `npx eslint .` → exit 1, 10 problems (7 errors / 3 warnings),
+four of them from the two leftover compiled `app/(auth)/*.js`. Filed [[wiki/concepts/music-app-fsd-nextjs]] and
+[[wiki/entities/svg-icon]] (sprite convention + dead `icons.tsx`); updated [[wiki/index]].
+
+## [2026-10-20] decision | AGENTS.md gets a project-rules block
+Added `<!-- BEGIN music-app:project-rules --> … <!-- END music-app:project-rules -->` between the managed
+`nextjs-agent-rules` block and the `opencode-rag` block, keeping both managed blocks byte-identical (36 insertions,
+0 deletions). Owner's calls: project block in Russian (managed blocks stay English); lint line stays qualitative
+("no new errors", no counts); public-API import phrased as a preference; no ban on `"use client"`; type check is
+`npx tsc --noEmit --incremental false`; new rules for "no dependency/config changes without an explicit request" and
+for recording knowledge in `.opencode/wiki`. Existing `app/(auth)/*.js` duplicates are declared out of scope (separate
+issue) and must not be deleted as part of unrelated work. The literal `<!-- BEGIN:nextjs-agent-rules -->` mention inside
+the prose was rephrased to «managed-блок в начале файла», so the file now contains exactly the six real markers and no
+marker text elsewhere (a future regex-based scan in `next dev` could otherwise corrupt the file). Committed as two
+commits on `docs/upgrade-agents-md`: `2fc1c66 docs: add project rules block for the app to AGENTS.md` and
+`3701a95 docs(rag): record app FSD/conventions analysis in the wiki` — agent rules and agent notes stay reviewable and
+revertable separately.

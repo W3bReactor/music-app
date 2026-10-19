@@ -8,6 +8,42 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+<!-- BEGIN music-app:project-rules -->
+# music-app — Next.js 16, React 19, Feature-Sliced Design
+
+## Куда класть новый код
+- Роутинг — только в корневом `app/`: группы `(intro)` → `/`, `(basic)` → `/profile`, `(auth)` → `/login`, `/register`, `/successfully`. Route-файл — тонкий `.tsx` с `export default`, который рендерит компонент из `src/`; разметку и логику в `app/` не писать.
+- FSD-слои — в `src/`: `app/` (`layouts/`, `styles/globals.css`, `ambient/`), `pages/`, `widgets/`, `features/`, `shared/`. Слоя `entities` пока нет — не создавай его без обсуждения; сегментов `api`/`lib` тоже нет: новый код → `src/<layer>/<slice>/{ui,model}/`.
+- `@/*` → `./src/*`, поэтому `@/app/layouts/...` — это FSD-слой `app`, а НЕ директория роутера `app/`.
+- Предпочитай импорт через публичный API слайса (`@/pages/auth`, `@/features/auth`, `@/widgets/header`, `@/shared/ui`) вместо путей внутрь слайса. Если нужного экспорта там нет (`GrayButton`, `MediaItem`, `SidebarItem`, `HeaderIntro`) — сначала добавь его в `index.ts`.
+
+## Соглашения (подтверждены кодом)
+- Именованные экспорты + arrow-компоненты: `export const X = ({ ... }: XProps) => ...`; `export default` — только в файлах роутера `app/`.
+- Пропсы — локальный `interface XProps` в том же файле, необязательные через деструктуризацию с дефолтом (`isIntro = false`); `React.FC` не используется.
+- Файлы: `PascalCase.tsx` на компонент, папка на компонент (`Sidebar/Sidebar.tsx`), рядом `Sidebar.module.css`, импорт всегда `import styles from "./X.module.css"`.
+- Стили: CSS Modules + токены из `src/app/styles/globals.css` (`var(--action-accent-primary)`), условные классы — `classnames` (`import cn from "classnames"`).
+- Иконки: `<SvgIcon name="chevron" />` рендерит `public/icons/sprite.svg#sprite-<name>`; `name` — не типизированная строка, новое имя сверяй с id в спрайте.
+- Серверные по умолчанию: `"use client"` — когда нужны хуки или обработчики (сейчас так сделаны `LoginForm`, `RegisterForm`, `SidebarItem`). React Compiler включён (`next.config.ts`) — `useMemo`/`memo` руками не писать.
+- Формы: `react-hook-form` + `zodResolver`; схема в `model/*.ts` экспортирует саму схему и тип через `z.infer`; сабмит — `SubmitHandler<T>`; незаведённые данные помечены `TODO: GET DATA` и `console.log`.
+- Комментарии, README и пояснения — на русском; имена, UI-тексты и сообщения коммитов — на английском.
+
+## Перед завершением задачи
+- `npx tsc --noEmit --incremental false` — проверка типов (флаг обязателен: при `incremental: true` обычный `--noEmit` пишет `tsconfig.tsbuildinfo`). Сейчас — exit 0.
+- `npm run lint` — часть файлов уже с ошибками (легаси-дубли в `app/`, `any` в `assets.d.ts`, скрипты в `.opencode/**`); чинить их в несвязанных задачах не нужно, но новых ошибок добавлять нельзя.
+- Тестов нет: ни раннера, ни `test`/`typecheck`/`format`-скриптов, ни CI; `__tests__` указан в `tsconfig.include`, но папки нет.
+- Ветки `type/kebab-name` (`feature/`, `refactor/`, `chore/`, `docs/`), коммиты `feat: …`, `refactor: …`, `chore(rag): …`, `docs(rag): …`.
+
+## Чего не делать
+- Не запускать `npx tsc` без `--noEmit`: в `tsconfig.json` стоит `noEmit: false`, и компилятор пишет `.js` рядом с каждым `.tsx` (так появились дубли `app/(auth)/layout.js`, `app/(auth)/register/page.js`).
+- Не создавать `.js`/`.d.ts`-копии рядом с исходниками и не удалять существующие дубли `app/(auth)/*.js` — это отдельная задача.
+- Не добавлять и не обновлять зависимости без явной просьбы: правки `package.json`/`package-lock.json` — отдельное решение автора.
+- Не менять `tsconfig.json`, `eslint.config.mjs`, `.prettierrc.json`, `next.config.ts` без явной просьбы.
+- Не редактировать managed-блок от `next dev` в начале файла (маркеры `nextjs-agent-rules`) — он перезапишет его сам.
+
+## Знания и решения
+- Долговременные знания — в `.opencode/wiki/`: `index.md` (каталог страниц), `concepts/`, `entities/`, `log.md` (хронология). Нашёл неочевидное — заведи/обнови страницу и «квирк» через `add_quirk`, а не оставляй только в чате.
+<!-- END music-app:project-rules -->
+
 <!-- BEGIN opencode-rag -->
 ## Code Navigation
 
