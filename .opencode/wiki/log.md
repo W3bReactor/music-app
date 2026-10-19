@@ -118,3 +118,15 @@ marker text elsewhere (a future regex-based scan in `next dev` could otherwise c
 commits on `docs/upgrade-agents-md`: `2fc1c66 docs: add project rules block for the app to AGENTS.md` and
 `3701a95 docs(rag): record app FSD/conventions analysis in the wiki` — agent rules and agent notes stay reviewable and
 revertable separately.
+
+## [2026-10-20] decision | Wiki and quirk noise policy
+A test session (new component in `shared/ui`) passed the AGENTS.md checks but also filed a wiki page and a quirk for a
+routine task. Owner's rule: write only when the decision is not recoverable from code (why this way, which alternative
+was rejected), when it is a trap that already cost more than one attempt, or when the architecture changed (new layer,
+slice pattern, import rule). Routine components, style tweaks and bugfixes need neither a page nor a quirk; log.md gets
+one entry per significant decision, not per task. The rules live in [[wiki/index]] so they load only when an agent
+actually opens the wiki — AGENTS.md is at the 100-line cap. AGENTS.md keeps one pointer line plus
+«Квирк только для неочевидной ловушки, не для описания добавленного кода» in the project block, because the
+`opencode-rag` block is generated (`dist/cli/commands/init-helpers.js` → `mergeAgentsMdContent` rewrites the region
+between its own markers, first-occurrence `indexOf`, and preserves everything outside them) and must not be edited by
+hand.
