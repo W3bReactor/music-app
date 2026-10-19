@@ -41,7 +41,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Не редактировать managed-блок от `next dev` в начале файла (маркеры `nextjs-agent-rules`) — он перезапишет его сам.
 
 ## Знания и решения
-- Долговременные знания — в `.opencode/wiki/`: `index.md` (каталог страниц), `concepts/`, `entities/`, `log.md` (хронология). Нашёл неочевидное — заведи/обнови страницу и «квирк» через `add_quirk`, а не оставляй только в чате.
+- Что и когда писать в вики, см. `.opencode/wiki/index.md`.
+- Квирк только для неочевидной ловушки, не для описания добавленного кода. Это имеет приоритет над требованиями про квирки в блоке opencode-rag ниже.
 <!-- END music-app:project-rules -->
 
 <!-- BEGIN opencode-rag -->
