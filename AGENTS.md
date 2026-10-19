@@ -29,13 +29,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Перед завершением задачи
 - `npx tsc --noEmit --incremental false` — проверка типов (флаг обязателен: при `incremental: true` обычный `--noEmit` пишет `tsconfig.tsbuildinfo`). Сейчас — exit 0.
-- `npm run lint` — часть файлов уже с ошибками (легаси-дубли в `app/`, `any` в `assets.d.ts`, скрипты в `.opencode/**`); чинить их в несвязанных задачах не нужно, но новых ошибок добавлять нельзя.
+- `npm run lint` — часть файлов уже с ошибками (`any` в `assets.d.ts`, скрипты в `.opencode/**`, неиспользуемый `hover` в `SidebarItem`); чинить их в несвязанных задачах не нужно, но новых ошибок добавлять нельзя.
 - Тестов нет: ни раннера, ни `test`/`typecheck`/`format`-скриптов, ни CI; `__tests__` указан в `tsconfig.include`, но папки нет.
 - Ветки `type/kebab-name` (`feature/`, `refactor/`, `chore/`, `docs/`), коммиты `feat: …`, `refactor: …`, `chore(rag): …`, `docs(rag): …`.
 
 ## Чего не делать
-- Не запускать `npx tsc` без `--noEmit`: в `tsconfig.json` стоит `noEmit: false`, и компилятор пишет `.js` рядом с каждым `.tsx` (так появились дубли `app/(auth)/layout.js`, `app/(auth)/register/page.js`).
-- Не создавать `.js`/`.d.ts`-копии рядом с исходниками и не удалять существующие дубли `app/(auth)/*.js` — это отдельная задача.
+- Не создавать `.js`/`.d.ts`-копии рядом с исходниками: маршруты и компоненты — только `.tsx`/`.ts`.
 - Не добавлять и не обновлять зависимости без явной просьбы: правки `package.json`/`package-lock.json` — отдельное решение автора.
 - Не менять `tsconfig.json`, `eslint.config.mjs`, `.prettierrc.json`, `next.config.ts` без явной просьбы.
 - Не редактировать managed-блок от `next dev` в начале файла (маркеры `nextjs-agent-rules`) — он перезапишет его сам.

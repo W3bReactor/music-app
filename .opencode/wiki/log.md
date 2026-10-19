@@ -130,3 +130,11 @@ actually opens the wiki — AGENTS.md is at the 100-line cap. AGENTS.md keeps on
 `opencode-rag` block is generated (`dist/cli/commands/init-helpers.js` → `mergeAgentsMdContent` rewrites the region
 between its own markers, first-occurrence `indexOf`, and preserves everything outside them) and must not be edited by
 hand.
+
+## [2026-10-20] refactor | Compiled app-router duplicates removed, `noEmit` turned on
+`app/(auth)/layout.js` and `app/(auth)/register/page.js` deleted — verified compiled twins of the sibling `.tsx`
+(same component, CommonJS `require`) — and `tsconfig.json` `noEmit` flipped `false → true`; `allowJs` untouched.
+`next build` → exit 0, 6 static routes, no route conflict; typecheck still exit 0; lint drops from 10 to 6 problems
+(3 errors / 3 warnings), all unrelated. AGENTS.md loses the obsolete "don't run `tsc` without `--noEmit`" rule and the
+duplicate-deletion carve-out, keeps "no new `.js`/`.d.ts` twins next to sources". See
+[[wiki/concepts/music-app-fsd-nextjs]]. Committed on `refactor/remove-app-compiled-js`.

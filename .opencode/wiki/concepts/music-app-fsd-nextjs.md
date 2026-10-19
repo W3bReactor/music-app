@@ -7,7 +7,8 @@ lastReviewed: 2026-10-20
 
 # music-app: FSD + Next.js App Router layout
 
-Read-only analysis of the app (branch `docs/upgrade-agents-md`, 2026-10-20). Companion pages:
+Analysis of the app (2026-10-20); the compiled-`.js` cleanup landed on `refactor/remove-app-compiled-js`.
+Companion pages:
 [[wiki/entities/svg-icon]], [[wiki/entities/sidebar]]. Agent-facing summary of the same facts lives in the
 `music-app:project-rules` block of `AGENTS.md`.
 
@@ -95,22 +96,22 @@ library" for the compiler in `RegisterForm.tsx:28`.
 
 - `npx tsc --noEmit --incremental false` → **exit 0**, no output. The extra flag matters: `incremental: true` in
   `tsconfig.json` makes plain `--noEmit` write `tsconfig.tsbuildinfo` (verified: mtime unchanged with the flag).
-- `npx eslint .` (== `npm run lint`) → **exit 1**, `10 problems (7 errors, 3 warnings)`: 2× `no-require-imports` in
-  each leftover `app/(auth)/layout.js` and `app/(auth)/register/page.js`, `no-explicit-any` in
-  `src/app/ambient/assets.d.ts:2`, unused `hover` in `SidebarItem.tsx:25`, unused `MARKER` in
-  `.opencode/patches/apply-rag-patches.mjs:32`, plus the React Compiler warning. ESLint lints `.opencode/**` too, and
-  the base `no-unused-vars: error` next to `@typescript-eslint/no-unused-vars` reports each unused variable twice.
-- Not run (forbidden read-only task): `next build`, `next dev`, `prettier`, tests.
-- `tsconfig.json` hazards: `noEmit: false` + `allowJs: true` emit `.js` next to sources (that is how the compiled
-  duplicates appeared); `module: commonjs` / `moduleResolution: node` and `lib: ["ES2022"]` without DOM are unusual
-  for Next 16 but currently pass. Owner does not want this file changed.
+- `npm run build` (`next build`, Turbopack) → **exit 0**: 6 static routes (`/`, `/_not-found`, `/login`, `/profile`,
+  `/register`, `/successfully`), TypeScript step clean, no route conflict from the removed duplicates.
+- `npx eslint .` (== `npm run lint`) → **exit 1**, `6 problems (3 errors, 3 warnings)`: unused `MARKER` in
+  `.opencode/patches/apply-rag-patches.mjs:32`, `no-explicit-any` in `src/app/ambient/assets.d.ts:2`, unused `hover`
+  in `src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx:25`, plus one React Compiler warning in `RegisterForm.tsx`.
+  ESLint lints `.opencode/**` too, and the base `no-unused-vars: error` next to
+  `@typescript-eslint/no-unused-vars` reports each unused variable twice.
+- Not run: `next dev`, `prettier`, tests.
+- `tsconfig.json`: `noEmit: true` since the duplicate cleanup (was `false`); `allowJs: true` stays. `module:
+  commonjs` / `moduleResolution: node` and `lib: ["ES2022"]` without DOM are unusual for Next 16 but currently pass.
 
 ## Gaps / open issues
 
-1. Two tracked CommonJS duplicates in the router — `app/(auth)/layout.js`, `app/(auth)/register/page.js` — the last
-   leftovers of the WebStorm compile (six `src/` twins were removed in `298e346`). They are the bulk of the red lint
-   and a possible route-resolution conflict (unverified: build was not run). Cleanup deliberately deferred to a
-   separate issue.
+1. Compiled duplicates — **resolved 2026-10-20** (`refactor/remove-app-compiled-js`): `app/(auth)/layout.js` and
+   `app/(auth)/register/page.js` deleted, `noEmit` flipped to `true`; build and typecheck pass. The remaining red
+   lint is unrelated (see Commands).
 2. Incomplete `src/shared/ui/index.ts` (`GrayButton`, `MediaItem`, `SidebarItem` missing) → forced deep imports.
 3. Weak typing: `assets.d.ts` declares `*.svg` as `any`; `SvgIconProps.name` is a bare `string`, so a wrong icon
    name fails silently (see [[wiki/entities/svg-icon]]).
