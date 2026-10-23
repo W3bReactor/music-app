@@ -12,7 +12,7 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "prefer-const": "error",
-      "no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": "error",
     },
   },
   // Override default ignores of eslint-config-next.
