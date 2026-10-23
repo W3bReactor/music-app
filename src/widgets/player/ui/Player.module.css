@@ -1,0 +1,115 @@
+.player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--black-800);
+    padding: 10px 24px;
+}
+
+.playerTrack {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.playerTrackImage {
+    border-radius: 16px;
+}
+
+.playerTrackInfo {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.playerTrackName {
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.playerTrackArtist {
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--text-primary);
+    opacity: 0.8;
+}
+
+.playerControl {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+}
+
+.playerControlButtons {
+    display: flex;
+    align-items: center;
+    gap: 52px;
+    margin-bottom: 18px;
+}
+
+.playerControlButton {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background: var(--action-primary);
+    border-radius: 20px;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s linear;
+}
+
+.playerControlButton:hover {
+    background: var(--action-primary-hover);
+}
+
+.playerControlPrevIcon {
+    transform: rotate(180deg);
+}
+
+.playerControlRoad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 24px;
+}
+
+.playerControlTime {
+    font-weight: 400;
+    font-size: 20px;
+    color: var(--text-primary);
+}
+
+.playerControlRoadProgress {
+    position: relative;
+    width: 472px;
+}
+
+.playerVolume {
+    display: flex;
+    align-items: center;
+}
+
+.playerVolumeBtn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.playerVolumeProgress {
+    width: 122px;
+    margin-left: 16px;
+}
+

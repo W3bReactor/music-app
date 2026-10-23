@@ -8,7 +8,8 @@
 
 :root {
     --black-900: #000;
-    --black-800: #181818;
+    --black-800: #101010;
+    --black-700: #181818;
     --black-500: #1f1f1f;
     --black-400: #2f2f2f;
 
@@ -36,7 +37,7 @@
 
 
     --background-accent: var(--purple-900);
-    --background-primary: var(--black-800);
+    --background-primary: var(--black-700);
     --background-secondary: var(--black-500);
     --background-tertiary: var(--black-400);
 
@@ -44,6 +45,8 @@
     --action-accent-primary: var(--pink-500);
     --action-accent-primary-hover: var(--pink-600);
     --action-accent-secondary: var(--aqua-800);
+    --action-primary: var(--black-500);
+    --action-primary-hover: var(--black-400);
 
 
     --action-secondary: var(--purple-800);

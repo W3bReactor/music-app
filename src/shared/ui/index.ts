@@ -6,6 +6,8 @@ export { TransparentButton } from "./TransparentButton/TransparentButton";
 export { Footer } from "./Footer/Footer";
 export { AccentInput } from "./AccentInput/AccentInput";
 export { AccentSelect } from "./AccentSelect/AccentSelect";
+export { VolumeProgress } from "./VolumeProgress/VolumeProgress";
+export { AudioWave } from "./AudioWave/AudioWave";
 
 // Icons
 export { default as AvatarIcon } from "./icons/avatar.svg";
