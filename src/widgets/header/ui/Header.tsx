@@ -42,7 +42,7 @@ export const Header = ({ isIntro = false }: HeaderProps) => {
           <PinkButton href={"/register"} className={styles.headerAuthBtn}>
             Sign Up & Login
           </PinkButton>
-          {/* Возможно перестроить структуру, чтобы arrow_down отдельно была кнопкой, а остальное - ссылкой*/}
+          {/* Возможно перестроить структуру, чтобы arrow-down отдельно была кнопкой, а остальное - ссылкой*/}
           <Link href={"/profile"} className={styles.headerProfile}>
             <Image
               src={AvatarIcon}
@@ -53,7 +53,7 @@ export const Header = ({ isIntro = false }: HeaderProps) => {
             />
             <button className={styles.headerProfileBtn}>
               <span className={styles.headerProfileName}>User Name</span>
-              <SvgIcon name={"arrow_down"} size={24} />
+              <SvgIcon name={"arrow-down"} size={24} />
             </button>
           </Link>
         </div>

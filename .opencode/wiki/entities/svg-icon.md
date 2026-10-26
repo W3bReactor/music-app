@@ -21,7 +21,7 @@ public sprite `public/icons/sprite.svg` with an id of the form `sprite-<name>`.
 
 - `SvgIconProps.name` is a plain `string` — a typo produces no error and no icon, only an empty `<svg>`.
 - The sprite ids currently available: `github`, `home`, `discover`, `albums`, `artists`, `recently`, `played`,
-  `favorite`, `playlist`, `add_playlist`, `settings`, `logout`, `search`, `arrow_down`, `facebook`, `instagram`,
+  `favorite`, `playlist`, `add_playlist`, `settings`, `logout`, `search`, `arrow-down`, `facebook`, `instagram`,
   `twitter`, `phone`, `chevron`. Every name used in code exists in the sprite (checked 2026-10-20).
 - `src/shared/ui/SvgIcon/icons.tsx` exports a JSX `icons` object with a subset of the same glyphs. It is **dead
   code** — nothing imports it, and `SvgIcon` does not use it (the sprite wins). Its `clip0_597_*` ids would also

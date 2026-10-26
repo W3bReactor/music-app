@@ -77,6 +77,10 @@
     transform: rotate(180deg);
 }
 
+.playerControlIcon {
+    fill: var(--white-100);
+}
+
 .playerControlRoad {
     display: flex;
     align-items: center;
