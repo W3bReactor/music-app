@@ -2,14 +2,11 @@
 import styles from "./Player.module.css";
 import Image from "next/image";
 import playerPreviewImage from "./track-preview.jpg";
-import nextTrackIcon from "./next-track.svg";
-import playingIcon from "./playing.svg";
-import playIcon from "./play.svg";
 import volumeIcon from "./volume.svg";
 import cn from "classnames";
 import { useAudioPlayer } from "@/shared/libs/useAudioPlayer";
 import { MOCK_PEAKS } from "@/shared/libs/mockPeaks";
-import { AudioWave, VolumeProgress } from "@/shared/ui";
+import { AudioWave, SvgIcon, VolumeProgress } from "@/shared/ui";
 import { createMockAudioUrl } from "@/shared/libs/mockAudio";
 import { useEffect } from "react";
 
@@ -59,10 +56,13 @@ export const Player = () => {
           <button
             className={cn(styles.playerControlButton, styles.playerControlPrev)}
           >
-            <Image
-              src={nextTrackIcon}
-              alt={"Previous track"}
-              className={styles.playerControlPrevIcon}
+            <SvgIcon
+              name={"next"}
+              className={cn(
+                styles.playerControlIcon,
+                styles.playerControlPrevIcon
+              )}
+              size={15}
             />
           </button>
           <button
@@ -70,19 +70,34 @@ export const Player = () => {
             onClick={toggle}
             aria-label={isPlaying ? "Pause" : "Play"}
           >
-            <Image
-              src={isPlaying ? playingIcon : playIcon}
-              alt={"Play/Stop"}
-              className={styles.playerControlPlayIcon}
-            />
+            {isPlaying ? (
+              <SvgIcon
+                className={cn(
+                  styles.playerControlIcon,
+                  styles.playerControlPlayIcon
+                )}
+                name={"playing"}
+              />
+            ) : (
+              <SvgIcon
+                className={cn(
+                  styles.playerControlIcon,
+                  styles.playerControlPlayIcon
+                )}
+                name={"play"}
+              />
+            )}
           </button>
           <button
             className={cn(styles.playerControlButton, styles.playerControlNext)}
           >
-            <Image
-              src={nextTrackIcon}
-              alt={"Next track"}
-              className={styles.playerControlNextIcon}
+            <SvgIcon
+              name={"next"}
+              className={cn(
+                styles.playerControlIcon,
+                styles.playerControlNextIcon
+              )}
+              size={15}
             />
           </button>
         </div>

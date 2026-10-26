@@ -1,0 +1,50 @@
+.trackMainInfo {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.trackImage {
+    border-radius: 8px;
+}
+
+.trackContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.trackName {
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.trackArtist {
+    font-weight: 400;
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.trackPlayBtn {
+    border: none;
+    outline: none;
+    background-color: var(--white-100);
+    border-radius: 30px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s linear;
+}
+
+.trackPlayBtn:hover {
+    background-color: var(--gray-500);
+}
+
+.trackPlayIcon {
+    fill: var(--black-500);
+}

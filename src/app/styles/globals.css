@@ -45,10 +45,9 @@
     --action-accent-primary: var(--pink-500);
     --action-accent-primary-hover: var(--pink-600);
     --action-accent-secondary: var(--aqua-800);
+
     --action-primary: var(--black-500);
     --action-primary-hover: var(--black-400);
-
-
     --action-secondary: var(--purple-800);
     --action-tertiary: var(--gray-800);
     --action-tertiary-hover: var(--gray-700);
