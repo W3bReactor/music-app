@@ -29,7 +29,7 @@ Knowledge base for this workspace. Pages are interlinked with `[[wiki/...]]` lin
 | Page | Summary |
 |---|---|
 | [[wiki/entities/sidebar]] | `shared/ui/Sidebar` + `SidebarItem`: the left nav rail, its items, props and CSS variants |
-| [[wiki/entities/svg-icon]] | `shared/ui/SvgIcon`: the sprite-based icon primitive, its available ids and the dead `icons.tsx` |
+| [[wiki/entities/svg-icon]] | `shared/ui/SvgIcon`: the sprite-based icon primitive, its available ids and the sprite-only rule (the old JSX `icons.tsx` is gone) |
 | [[wiki/entities/opencode-rag-plugin]] | The OpenCodeRAG plugin wired into this repo: server plugin + TUI plugin, config, index status |
 
 ## Concepts

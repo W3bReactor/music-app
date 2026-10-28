@@ -12,8 +12,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # music-app — Next.js 16, React 19, Feature-Sliced Design
 
 ## Куда класть новый код
-- Роутинг — только в корневом `app/`: группы `(intro)` → `/`, `(basic)` → `/profile`, `(auth)` → `/login`, `/register`, `/successfully`. Route-файл — тонкий `.tsx` с `export default`, который рендерит компонент из `src/`; разметку и логику в `app/` не писать.
-- FSD-слои — в `src/`: `app/` (`layouts/`, `styles/globals.css`, `ambient/`), `pages/`, `widgets/`, `features/`, `shared/`. Слоя `entities` пока нет — не создавай его без обсуждения; сегментов `api`/`lib` тоже нет: новый код → `src/<layer>/<slice>/{ui,model}/`.
+- Роутинг — только в корневом `app/`: группы `(intro)` → `/`, `(basic)` → `/profile`, `/music/[id]`, `(auth)` → `/login`, `/register`, `/successfully`. Route-файл — тонкий `.tsx` с `export default`, который рендерит компонент из `src/`; разметку и логику в `app/` не писать.
+- FSD-слои — в `src/`: `app/` (`layouts/`, `styles/globals.css`, `ambient/`), `pages/`, `widgets/`, `features/`, `entities/`, `shared/`. `entities` появился (`track`: `Track`, `TrackCard`, `TrackInfo`): доменный тип и его UI — туда, мок-данные — в `pages/<slice>/model`. Сегменты слайса — `ui`/`model`; в `shared/` есть `libs/` (хуки и утилиты без UI), сегмента `api` пока нет.
 - `@/*` → `./src/*`, поэтому `@/app/layouts/...` — это FSD-слой `app`, а НЕ директория роутера `app/`.
 - Предпочитай импорт через публичный API слайса (`@/pages/auth`, `@/features/auth`, `@/widgets/header`, `@/shared/ui`) вместо путей внутрь слайса. Если нужного экспорта там нет (`GrayButton`, `MediaItem`, `SidebarItem`, `HeaderIntro`) — сначала добавь его в `index.ts`.
 
@@ -23,7 +23,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Файлы: `PascalCase.tsx` на компонент, папка на компонент (`Sidebar/Sidebar.tsx`), рядом `Sidebar.module.css`, импорт всегда `import styles from "./X.module.css"`.
 - Стили: CSS Modules + токены из `src/app/styles/globals.css` (`var(--action-accent-primary)`), условные классы — `classnames` (`import cn from "classnames"`).
 - Иконки: `<SvgIcon name="chevron" />` рендерит `public/icons/sprite.svg#sprite-<name>`; `name` — не типизированная строка, новое имя сверяй с id в спрайте.
-- Серверные по умолчанию: `"use client"` — когда нужны хуки или обработчики (сейчас так сделаны `LoginForm`, `RegisterForm`, `SidebarItem`). React Compiler включён (`next.config.ts`) — `useMemo`/`memo` руками не писать.
+- Картинки — `next/image`: локальные через импорт (`import img from "./x.jpg"`), внешние URL — только если хост добавлен в `images.remotePatterns` (`next.config.ts`).
+- Серверные по умолчанию: `"use client"` — когда нужны хуки, состояние или обработчики (`*Form`, `SidebarItem`, `CardSlider`, `TrackInfo`, `Spoiler`, `AudioWave`, `VolumeProgress`, `Player`). React Compiler включён (`next.config.ts`) — `useMemo`/`memo` руками не писать.
 - Формы: `react-hook-form` + `zodResolver`; схема в `model/*.ts` экспортирует саму схему и тип через `z.infer`; сабмит — `SubmitHandler<T>`; незаведённые данные помечены `TODO: GET DATA` и `console.log`.
 - Комментарии, README и пояснения — на русском; имена, UI-тексты и сообщения коммитов — на английском.
 

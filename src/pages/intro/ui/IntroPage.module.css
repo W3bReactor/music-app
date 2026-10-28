@@ -1,0 +1,13 @@
+.introTracks {
+    margin-top: 64px;
+    margin-bottom: 130px;
+}
+
+.introTracksTitle {
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+

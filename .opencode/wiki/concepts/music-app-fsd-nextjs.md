@@ -2,12 +2,12 @@
 title: music-app: FSD + Next.js App Router layout
 tags: [fsd, nextjs, architecture, conventions, music-app]
 sourceRefs: [package.json, package-lock.json, tsconfig.json, eslint.config.mjs, next.config.ts, README.md, app/, src/, git log]
-lastReviewed: 2026-10-20
+lastReviewed: 2026-10-29
 ---
 
 # music-app: FSD + Next.js App Router layout
 
-Analysis of the app (2026-10-20); the compiled-`.js` cleanup landed on `refactor/remove-app-compiled-js`.
+Re-checked 2026-10-29 on `feature/add-music-cards` (player, music page, track cards; first `entities` slice).
 Companion pages:
 [[wiki/entities/svg-icon]], [[wiki/entities/sidebar]]. Agent-facing summary of the same facts lives in the
 `music-app:project-rules` block of `AGENTS.md`.
@@ -16,13 +16,14 @@ Companion pages:
 
 | Package | Version | Where it is actually used |
 |---|---|---|
-| `next` | `16.3.5` (exact) | `next/link` ×7, `next/image` ×3, `next/font/google` ×1 |
+| `next` | `16.3.5` (exact) | `next/link`, `next/image` and `next/font/google` in router files, layouts and widgets |
 | `react` / `react-dom` | `19.2.8` (exact) | everywhere; `reactCompiler: true` in `next.config.ts` |
 | `typescript` | `^5` | `tsconfig.json`; no `typecheck` script |
 | `eslint` / `eslint-config-next` | `^9` / `16.3.5` | `eslint.config.mjs` (flat config) |
 | `prettier` | `3.9.8` (exact) | `.prettierrc.json` only — no script, no CI, so formatting is IDE-driven |
-| `classnames` | `^2.5.1` | 9 components, always as `import cn from "classnames"` |
+| `classnames` | `^2.5.1` | `shared/ui` and widgets (`CardSlider`, `Player`, …), always as `import cn from "classnames"` |
 | `react-hook-form` + `@hookform/resolvers` + `zod` | `^7.90.0` / `^5.9.2` / `^4.6.7` | `src/features/auth/ui/*Form.tsx` + `model/*Schema.ts` |
+| `swiper` | `^14.3.0` | `shared/ui/CardSlider` only (`swiper/react` + `swiper/modules`, CSS via `swiper/css/*`) |
 | `@types/node` | `^20` | nothing in the code — probably dead, unverified |
 
 `package-lock.json`: `lockfileVersion 3`. Zod 4 API is in use (`z.email(...)` — not available in Zod 3).
@@ -36,6 +37,7 @@ holds a single `README.md` placeholder.
 |---|---|
 | `/` | `app/(intro)/page.tsx` → `@/pages/intro` |
 | `/profile` | `app/(basic)/profile/page.tsx` → `@/pages/profile` |
+| `/music/[id]` | `app/(basic)/music/[id]/page.tsx` → `@/pages/track` (dynamic; `params` unused) |
 | `/login` | `app/(auth)/login/page.tsx` → `@/pages/auth` |
 | `/register` | `app/(auth)/register/page.tsx` → `@/pages/auth` |
 | `/successfully` | `app/(auth)/successfully/page.tsx` → `@/pages/auth` |
@@ -55,13 +57,14 @@ in by the gitignored `next-env.d.ts` — so on a clean clone typecheck fails unt
 | Layer | Slices | Segments |
 |---|---|---|
 | `src/app` | `layouts/AuthLayout`, `layouts/MainLayout`, `styles/globals.css`, `ambient/assets.d.ts` | — |
-| `src/pages` | `auth` (LoginPage, RegisterPage, RegisterSuccessfullyPage), `intro`, `profile` | `ui` |
-| `src/widgets` | `header` (`Header`, `HeaderIntro`) | `ui` |
+| `src/pages` | `auth` (LoginPage, RegisterPage, RegisterSuccessfullyPage), `intro`, `profile`, `track` (TrackPage) | `ui`, `model` (`intro/mockTracks.ts`) |
+| `src/widgets` | `header` (`Header`, `HeaderIntro`), `player` (`Player`) | `ui` |
 | `src/features` | `auth` (LoginForm, RegisterForm), `search` (SearchInput) | `ui`, `model` |
-| `src/shared` | `ui` (10 component folders + `icons/avatar.svg`) | `ui` |
+| `src/entities` | `track` (`TrackCard`, `TrackInfo`) | `ui`, `model` (`Track` in `model/types.ts`) |
+| `src/shared` | `ui` (13 component folders, 11 re-exported — `GrayButton`/`MediaItem` are not), `libs` (`useAudioPlayer`, `mockAudio`, `mockPeaks`) | `ui`, `libs` |
 
-No `entities` layer, no `api`/`lib` segments anywhere. Dependency direction is respected (`app → widgets/pages →
-features → shared`); the only violations are imports that reach **inside** a slice:
+No `api` segment. Dependency direction is respected (`app → widgets/pages → features → entities → shared`); the only
+violations are imports that reach **inside** a slice:
 
 - `src/features/auth/ui/RegisterForm.tsx:6` → `@/shared/ui/AccentInput/AccentInput` — unnecessary, `AccentInput` is
   exported from the slice index already;
@@ -73,10 +76,10 @@ features → shared`); the only violations are imports that reach **inside** a s
 
 ## Server vs client
 
-`"use client"` appears in exactly three files: `src/features/auth/ui/LoginForm.tsx`, `RegisterForm.tsx`,
-`src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx`. All layouts/pages are server components. React Compiler is
-enabled, so manual memoization is redundant; ESLint flags `watch()` from `react-hook-form` as an "incompatible
-library" for the compiler in `RegisterForm.tsx:28`.
+`"use client"` appears in ten files: the auth forms, `SidebarItem`, `Spoiler`, `AudioWave`, `VolumeProgress`,
+`CardSlider`, `TrackInfo`, `Player` and the `shared/libs/useAudioPlayer.ts` hook. All layouts/pages are server
+components. React Compiler is enabled, so manual memoization is redundant; ESLint flags `watch()` from
+`react-hook-form` as an "incompatible library" for the compiler in `RegisterForm.tsx:28`.
 
 ## Conventions confirmed by code
 
@@ -84,6 +87,10 @@ library" for the compiler in `RegisterForm.tsx:28`.
 - Props: local `interface XProps` in the same file, optional ones via destructuring defaults; `React.FC` unused.
 - One folder per component, `PascalCase.tsx` + `X.module.css`, always `import styles from "./X.module.css"`.
 - CSS Modules + design tokens from `src/app/styles/globals.css`; conditional classes via `cn`.
+- Images: `next/image`; local assets are imported as modules (`import img from "./x.jpg"`), remote covers require the
+  host in `images.remotePatterns` (`next.config.ts` — only `yavuzceliker.github.io` today).
+- Mock media: `shared/libs/mockAudio.ts` builds a WAV in memory and exposes it as a `Blob` URL; `useAudioPlayer`
+  drives time/volume state with `requestAnimationFrame` while playing, and `Player` renders inside `MainLayout`.
 - Forms: schema in `model/*.ts` exporting the schema and the `z.infer` type, `SubmitHandler<T>`, placeholder data
   marked `TODO: GET DATA` + `console.log`.
 - Comments/docs in Russian; identifiers, UI copy, commit subjects in English.
@@ -92,29 +99,32 @@ library" for the compiler in `RegisterForm.tsx:28`.
 - **Not** conventions: import order (differs between `Header.tsx` and `ProfileInfo.tsx`, no `import/order` rule) and
   asset casing (`AvatarIcon` from `icons/avatar.svg` vs `edit.svg`, `avatar.svg`).
 
-## Commands, measured 2026-10-20
+## Commands, measured 2026-10-29
 
-- `npx tsc --noEmit --incremental false` → **exit 0**, no output. The extra flag matters: `incremental: true` in
-  `tsconfig.json` makes plain `--noEmit` write `tsconfig.tsbuildinfo` (verified: mtime unchanged with the flag).
-- `npm run build` (`next build`, Turbopack) → **exit 0**: 6 static routes (`/`, `/_not-found`, `/login`, `/profile`,
-  `/register`, `/successfully`), TypeScript step clean, no route conflict from the removed duplicates.
-- `npx eslint .` (== `npm run lint`) → **exit 1**, `6 problems (3 errors, 3 warnings)`: unused `MARKER` in
+- `npx tsc --noEmit --incremental false` → **exit 0**, no output. The extra flag still matters: `incremental: true`
+  in `tsconfig.json` makes plain `--noEmit` write `tsconfig.tsbuildinfo`.
+- `npm run build` (`next build`, Turbopack) → **exit 0**: 7 routes — 6 static (`/`, `/_not-found`, `/login`,
+  `/profile`, `/register`, `/successfully`) plus dynamic `ƒ /music/[id]`; TypeScript step clean.
+- `npx eslint .` (== `npm run lint`) → **exit 1**, `4 problems (3 errors, 1 warning)`: unused `MARKER` in
   `.opencode/patches/apply-rag-patches.mjs:32`, `no-explicit-any` in `src/app/ambient/assets.d.ts:2`, unused `hover`
-  in `src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx:25`, plus one React Compiler warning in `RegisterForm.tsx`.
-  ESLint lints `.opencode/**` too, and the base `no-unused-vars: error` next to
-  `@typescript-eslint/no-unused-vars` reports each unused variable twice.
+  in `src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx:25`, plus the React Compiler warning in `RegisterForm.tsx`.
+  ESLint lints `.opencode/**` too. `84cbb03` replaced the base `no-unused-vars` with
+  `@typescript-eslint/no-unused-vars`, so each unused variable is reported once now.
 - Not run: `next dev`, `prettier`, tests.
-- `tsconfig.json`: `noEmit: true` since the duplicate cleanup (was `false`); `allowJs: true` stays. `module:
-  commonjs` / `moduleResolution: node` and `lib: ["ES2022"]` without DOM are unusual for Next 16 but currently pass.
+- `tsconfig.json`: `noEmit: true` since the duplicate cleanup; `84cbb03` added `DOM` to `lib` (was `["ES2022"]`).
+  `module: commonjs` / `moduleResolution: node` are unusual for Next 16 but currently pass.
 
 ## Gaps / open issues
 
-1. Compiled duplicates — **resolved 2026-10-20** (`refactor/remove-app-compiled-js`): `app/(auth)/layout.js` and
-   `app/(auth)/register/page.js` deleted, `noEmit` flipped to `true`; build and typecheck pass. The remaining red
-   lint is unrelated (see Commands).
-2. Incomplete `src/shared/ui/index.ts` (`GrayButton`, `MediaItem`, `SidebarItem` missing) → forced deep imports.
+1. Compiled duplicates — **resolved 2026-10-20** (`refactor/remove-app-compiled-js`): both `.js` files deleted,
+   `noEmit` flipped to `true`; build and typecheck pass.
+2. Incomplete `src/shared/ui/index.ts` (`GrayButton`, `MediaItem`, `SidebarItem` missing) → forced deep imports
+   (`ProfileFavorite`, `Sidebar`, and a redundant `AccentInput` import in `RegisterForm`).
 3. Weak typing: `assets.d.ts` declares `*.svg` as `any`; `SvgIconProps.name` is a bare `string`, so a wrong icon
    name fails silently (see [[wiki/entities/svg-icon]]).
-4. Dead code: `app/page.module.css`, `src/shared/ui/SvgIcon/icons.tsx` (the `icons` object — the component renders
-   the public sprite instead), `sprites-trash/` (gitignored).
-5. No tests, no CI, no `typecheck`/`format` scripts.
+4. Dead code: `app/page.module.css` and `sprites-trash/` (gitignored); the unused `SvgIcon/icons.tsx` JSX object
+   (nothing imported it, icons come from the sprite) was deleted on 2026-10-29 — don't recreate it.
+5. Track mocks: ids 5 and 6 in `mockTracks` are the same song; `TrackCard` links to `/music/<id>` but `TrackPage`
+   ignores `params` and always shows "Superman".
+6. `CardSlider` uses a fixed `slidesPerView={5}` (no breakpoints).
+7. No tests, no CI, no `typecheck`/`format` scripts.

@@ -1,0 +1,39 @@
+.swiperWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.swiper {
+    width: 100%;
+    position: relative;
+    max-width: 942px;
+}
+
+
+.swiperBtn {
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.25s linear;
+}
+
+.swiperBtn:hover {
+    background-color: var(--background-tertiary);
+}
+
+.swiperPrevIcon {
+    transform: rotate(90deg);
+}
+
+.swiperNextIcon {
+    transform: rotate(-90deg);
+}
+
+.swiperBtn:global(.swiper-button-disabled) { opacity: .4; cursor: default; }
