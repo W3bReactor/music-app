@@ -9,14 +9,7 @@ export const IntroPage = () => {
       <h2 className={styles.introTracksTitle}>Tracks</h2>
       <CardSlider>
         {mockTracks.map((track) => (
-          <TrackCard
-            key={track.id}
-            id={track.id}
-            title={track.title}
-            artist={track.artist}
-            duration={track.duration}
-            image={track.image}
-          />
+          <TrackCard key={track.id} track={track} />
         ))}
       </CardSlider>
     </section>

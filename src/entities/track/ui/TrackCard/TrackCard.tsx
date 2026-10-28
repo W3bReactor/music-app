@@ -2,22 +2,15 @@ import Link from "next/link";
 import styles from "./TrackCard.module.css";
 import Image from "next/image";
 import trackPreviewImage from "./track-preview-1.jpg";
+import type { Track } from "../../model/types";
 
 interface TrackCardProps {
-  title: string;
-  artist: string;
-  duration: string;
-  id: number;
-  image?: string;
+  track: Track;
 }
 
-export const TrackCard = ({
-  title,
-  artist,
-  duration,
-  id,
-  image,
-}: TrackCardProps) => {
+export const TrackCard = ({ track }: TrackCardProps) => {
+  const { title, artist, duration, id, image } = track;
+
   return (
     <Link href={`/music/${id}`} className={styles.trackCard}>
       <div className={styles.trackImageWrapper}>

@@ -1,10 +1,4 @@
-export interface Track {
-  id: number;
-  title: string;
-  artist: string;
-  duration: string;
-  image: string;
-}
+import type { Track } from "@/entities/track";
 
 export const mockTracks: Track[] = [
   {
