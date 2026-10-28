@@ -148,3 +148,10 @@ duplicate-deletion carve-out, keeps "no new `.js`/`.d.ts` twins next to sources"
 rule. Re-measured after the `arrow-down` fix and tracking the missing cover: `tsc` exit 0, `next build` exit 0 (7
 routes, `/music/[id]` dynamic), lint 4 problems (3 errors / 1 warning). See
 [[wiki/concepts/music-app-fsd-nextjs]].
+
+## [2026-10-29] refactor | `Track` moves into the entities model, dead icons object removed
+`Track` now lives in `entities/track/model/types.ts` and is re-exported from the slice index; `TrackCard` takes a
+single `track: Track` prop (its flat props duplicated the type) and `mockTracks` imports the type instead of
+declaring it. The dead `SvgIcon/icons.tsx` JSX object was deleted (nothing imported it; icons come from the sprite).
+Feature work for issue #26 landed as `feat: implement track cards in the intro slider` — the earlier `cf51bcc` had
+committed those files empty. tsc exit 0, `next build` exit 0.

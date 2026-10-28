@@ -60,7 +60,7 @@ in by the gitignored `next-env.d.ts` — so on a clean clone typecheck fails unt
 | `src/pages` | `auth` (LoginPage, RegisterPage, RegisterSuccessfullyPage), `intro`, `profile`, `track` (TrackPage) | `ui`, `model` (`intro/mockTracks.ts`) |
 | `src/widgets` | `header` (`Header`, `HeaderIntro`), `player` (`Player`) | `ui` |
 | `src/features` | `auth` (LoginForm, RegisterForm), `search` (SearchInput) | `ui`, `model` |
-| `src/entities` | `track` (`TrackCard`, `TrackInfo`) | `ui` |
+| `src/entities` | `track` (`TrackCard`, `TrackInfo`) | `ui`, `model` (`Track` in `model/types.ts`) |
 | `src/shared` | `ui` (13 component folders, 11 re-exported — `GrayButton`/`MediaItem` are not), `libs` (`useAudioPlayer`, `mockAudio`, `mockPeaks`) | `ui`, `libs` |
 
 No `api` segment. Dependency direction is respected (`app → widgets/pages → features → entities → shared`); the only
@@ -122,11 +122,9 @@ components. React Compiler is enabled, so manual memoization is redundant; ESLin
    (`ProfileFavorite`, `Sidebar`, and a redundant `AccentInput` import in `RegisterForm`).
 3. Weak typing: `assets.d.ts` declares `*.svg` as `any`; `SvgIconProps.name` is a bare `string`, so a wrong icon
    name fails silently (see [[wiki/entities/svg-icon]]).
-4. Dead code that still gets type-checked: `src/shared/ui/SvgIcon/icons.tsx` exports an unused `icons` object (the
-   component renders the sprite); an unquoted `arrow-down:` key there broke `tsc`/ESLint until 2026-10-29. Also
-   `app/page.module.css` and `sprites-trash/` (gitignored).
-5. Track mocks: `Track` (`pages/intro/model/mockTracks.ts`) duplicates `TrackCardProps`; ids 5 and 6 are the same
-   song; `TrackCard` links to `/music/<id>` but `TrackPage` ignores `params` and always shows "Superman".
-6. `CardSlider` uses a fixed `slidesPerView={5}` (no breakpoints); `swiper/css/autoplay` is imported although the
-   autoplay module ships no styles.
+4. Dead code: `app/page.module.css` and `sprites-trash/` (gitignored); the unused `SvgIcon/icons.tsx` JSX object
+   (nothing imported it, icons come from the sprite) was deleted on 2026-10-29 — don't recreate it.
+5. Track mocks: ids 5 and 6 in `mockTracks` are the same song; `TrackCard` links to `/music/<id>` but `TrackPage`
+   ignores `params` and always shows "Superman".
+6. `CardSlider` uses a fixed `slidesPerView={5}` (no breakpoints).
 7. No tests, no CI, no `typecheck`/`format` scripts.

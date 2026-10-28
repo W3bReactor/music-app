@@ -1,7 +1,7 @@
 ---
 title: SvgIcon
 tags: [shared-ui, icons, svg, music-app]
-sourceRefs: [src/shared/ui/SvgIcon/SvgIcon.tsx, src/shared/ui/SvgIcon/icons.tsx, public/icons/sprite.svg, src/shared/ui/index.ts]
+sourceRefs: [src/shared/ui/SvgIcon/SvgIcon.tsx, public/icons/sprite.svg, src/shared/ui/index.ts]
 lastReviewed: 2026-10-29
 ---
 
@@ -24,10 +24,8 @@ public sprite `public/icons/sprite.svg` with an id of the form `sprite-<name>`.
   `facebook`, `favorite`, `github`, `home`, `instagram`, `logout`, `next`, `phone`, `play`, `played`, `playing`,
   `playlist`, `recently`, `search`, `settings`, `twitter` (22 ids; checked 2026-10-29). Every name used in code exists
   in the sprite.
-- `src/shared/ui/SvgIcon/icons.tsx` exports a JSX `icons` object with a subset of the same glyphs. It is **dead
-  code** — nothing imports it, and `SvgIcon` does not use it (the sprite wins). It is still compiled: an unquoted
-  `arrow-down:` object key there failed `tsc` and ESLint on 2026-10-29 (fixed by quoting it). Its `clip0_597_*` ids
-  would also collide with the sprite's internal `<clipPath>` ids if both were rendered.
+- The old `src/shared/ui/SvgIcon/icons.tsx` JSX `icons` object was **deleted on 2026-10-29** — nothing imported it
+  and `SvgIcon` renders the sprite. Add new glyphs to `public/icons/sprite.svg` only, not as a JSX object.
 - `AvatarIcon` and `edit.svg` are separate raster/vector imports via `next/image`, not part of the sprite; SVG
   imports rely on the loose `declare module "*.svg" { const content: any }` in `src/app/ambient/assets.d.ts`.
 
