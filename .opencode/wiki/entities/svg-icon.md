@@ -2,7 +2,7 @@
 title: SvgIcon
 tags: [shared-ui, icons, svg, music-app]
 sourceRefs: [src/shared/ui/SvgIcon/SvgIcon.tsx, src/shared/ui/SvgIcon/icons.tsx, public/icons/sprite.svg, src/shared/ui/index.ts]
-lastReviewed: 2026-10-20
+lastReviewed: 2026-10-29
 ---
 
 # SvgIcon
@@ -20,12 +20,14 @@ public sprite `public/icons/sprite.svg` with an id of the form `sprite-<name>`.
 ## Traits worth remembering
 
 - `SvgIconProps.name` is a plain `string` — a typo produces no error and no icon, only an empty `<svg>`.
-- The sprite ids currently available: `github`, `home`, `discover`, `albums`, `artists`, `recently`, `played`,
-  `favorite`, `playlist`, `add_playlist`, `settings`, `logout`, `search`, `arrow-down`, `facebook`, `instagram`,
-  `twitter`, `phone`, `chevron`. Every name used in code exists in the sprite (checked 2026-10-20).
+- The sprite ids currently available: `add_playlist`, `albums`, `arrow-down`, `artists`, `chevron`, `discover`,
+  `facebook`, `favorite`, `github`, `home`, `instagram`, `logout`, `next`, `phone`, `play`, `played`, `playing`,
+  `playlist`, `recently`, `search`, `settings`, `twitter` (22 ids; checked 2026-10-29). Every name used in code exists
+  in the sprite.
 - `src/shared/ui/SvgIcon/icons.tsx` exports a JSX `icons` object with a subset of the same glyphs. It is **dead
-  code** — nothing imports it, and `SvgIcon` does not use it (the sprite wins). Its `clip0_597_*` ids would also
-  collide with the sprite's internal `<clipPath>` ids if both were rendered.
+  code** — nothing imports it, and `SvgIcon` does not use it (the sprite wins). It is still compiled: an unquoted
+  `arrow-down:` object key there failed `tsc` and ESLint on 2026-10-29 (fixed by quoting it). Its `clip0_597_*` ids
+  would also collide with the sprite's internal `<clipPath>` ids if both were rendered.
 - `AvatarIcon` and `edit.svg` are separate raster/vector imports via `next/image`, not part of the sprite; SVG
   imports rely on the loose `declare module "*.svg" { const content: any }` in `src/app/ambient/assets.d.ts`.
 
