@@ -9,6 +9,7 @@ export { AccentSelect } from "./AccentSelect/AccentSelect";
 export { VolumeProgress } from "./VolumeProgress/VolumeProgress";
 export { AudioWave } from "./AudioWave/AudioWave";
 export { Spoiler } from "./Spoiler/Spoiler";
+export { CardSlider } from "./CardSlider/CardSlider";
 
 // Icons
 export { default as AvatarIcon } from "./icons/avatar.svg";

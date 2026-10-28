@@ -19,7 +19,7 @@ export const AudioWave = ({ peaks, progress, onSeek }: AudioWaveProps) => {
     <span
       key={i}
       className={styles.bar}
-      style={{ height: `${Math.max(p / max, MIN_BAR) * 100}%` }}
+      style={{ height: `${(Math.max(p / max, MIN_BAR) * 100).toFixed(2)}%` }}
     />
   ));
 

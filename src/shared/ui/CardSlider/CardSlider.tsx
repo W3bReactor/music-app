@@ -1,124 +1,63 @@
-import styles from "./Footer.module.css";
+"use client";
+import styles from "./CardSlider.module.css";
 import { SvgIcon } from "@/shared/ui";
+import { Children, useState } from "react";
+import cn from "classnames";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
-export const Footer = () => {
+interface CardSliderProps {
+  children: React.ReactNode;
+}
+
+export const CardSlider = ({ children }: CardSliderProps) => {
+  const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
+  const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
+
   return (
-    <footer className={styles.footer}>
-      <div className={styles.footerAbout}>
-        <h2 className={styles.footerAboutTitle}>About</h2>
-        <p className={styles.footerAboutDesc}>
-          Melodies is a website that has been created for over{" "}
-          <span className={styles.footerAboutDescPurple}>5 year&#39;s</span> now
-          and it is one of the most famous music player website&#39;s in the
-          world. in this website you can listen and download songs for free.
-          also of you want no limitation you can buy our{" "}
-          <span className={styles.footerAboutDescAqua}>
-            premium pass&#39;s.
-          </span>
-        </p>
-      </div>
-      <div className={styles.footerNav}>
-        <div className={styles.footerNavColumn}>
-          <h3 className={styles.footerNavTitle}>Melodies</h3>
-          <ul className={styles.footerNavList}>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Songs
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Radio
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Podcast
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className={styles.footerNavColumn}>
-          <h3 className={styles.footerNavTitle}>Access</h3>
-          <ul className={styles.footerNavList}>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Explore
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Artists
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Playlists
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Albums
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Trending
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className={styles.footerNavColumn}>
-          <h3 className={styles.footerNavTitle}>Contact</h3>
-          <ul className={styles.footerNavList}>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                About
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Policy
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Social Media
-              </a>
-            </li>
-            <li className={styles.footerNavItem}>
-              <a className={styles.footerNavLink} href="#">
-                Support
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className={styles.footerColumn}>
-        <h3 className={styles.footerColumnTitle}>Melodies</h3>
-        <ul className={styles.footerSocial}>
-          <li className={styles.footerSocialItem}>
-            <a href="#" className={styles.footerSocialLink}>
-              <SvgIcon name={"facebook"} className={styles.footerSocialIcon} />
-            </a>
-          </li>
-          <li className={styles.footerSocialItem}>
-            <a href="#" className={styles.footerSocialLink}>
-              <SvgIcon name={"instagram"} className={styles.footerSocialIcon} />
-            </a>
-          </li>
-          <li className={styles.footerSocialItem}>
-            <a href="#" className={styles.footerSocialLink}>
-              <SvgIcon name={"twitter"} className={styles.footerSocialIcon} />
-            </a>
-          </li>
-          <li className={styles.footerSocialItem}>
-            <a href="#" className={styles.footerSocialLink}>
-              <SvgIcon name={"phone"} className={styles.footerSocialIcon} />
-            </a>
-          </li>
-        </ul>
-      </div>
-    </footer>
+    <div className={styles.swiperWrapper}>
+      <button
+        ref={setPrevEl}
+        className={cn(styles.swiperBtn, styles.swiperPrevBtn)}
+        aria-label="Previous Tracks"
+      >
+        <SvgIcon
+          name={"arrow-down"}
+          size={20}
+          className={cn(styles.swiperIcon, styles.swiperPrevIcon)}
+        />
+      </button>
+      <Swiper
+        modules={[Navigation, Autoplay]}
+        className={styles.swiper}
+        spaceBetween={12}
+        slidesPerView={5}
+        navigation={{
+          prevEl,
+          nextEl,
+        }}
+        autoplay={{
+          delay: 5000,
+        }}
+        loop={true}
+      >
+        {Children.map(children, (child) => (
+          <SwiperSlide>{child}</SwiperSlide>
+        ))}
+      </Swiper>
+      <button
+        ref={setNextEl}
+        className={cn(styles.swiperBtn, styles.swiperNextBtn)}
+        aria-label="Next Tracks"
+      >
+        <SvgIcon
+          name={"arrow-down"}
+          size={20}
+          className={cn(styles.swiperIcon, styles.swiperNextIcon)}
+        />
+      </button>
+    </div>
   );
 };
