@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Куда класть новый код
 - Роутинг — только в корневом `app/`: группы `(intro)` → `/`, `(basic)` → `/profile`, `/music/[id]`, `(auth)` → `/login`, `/register`, `/successfully`. Route-файл — тонкий `.tsx` с `export default`, который рендерит компонент из `src/`; разметку и логику в `app/` не писать.
-- FSD-слои — в `src/`: `app/` (`layouts/`, `styles/globals.css`, `ambient/`), `pages/`, `widgets/`, `features/`, `entities/`, `shared/`. `entities` появился (`track`: `TrackInfo`, `TrackCard`): доменный тип и его UI — туда, мок-данные — в `pages/<slice>/model`. Сегменты слайса — `ui`/`model`; в `shared/` есть `libs/` (хуки и утилиты без UI), сегмента `api` пока нет.
+- FSD-слои — в `src/`: `app/` (`layouts/`, `styles/globals.css`, `ambient/`), `pages/`, `widgets/`, `features/`, `entities/`, `shared/`. `entities` появился (`track`: `Track`, `TrackCard`, `TrackInfo`): доменный тип и его UI — туда, мок-данные — в `pages/<slice>/model`. Сегменты слайса — `ui`/`model`; в `shared/` есть `libs/` (хуки и утилиты без UI), сегмента `api` пока нет.
 - `@/*` → `./src/*`, поэтому `@/app/layouts/...` — это FSD-слой `app`, а НЕ директория роутера `app/`.
 - Предпочитай импорт через публичный API слайса (`@/pages/auth`, `@/features/auth`, `@/widgets/header`, `@/shared/ui`) вместо путей внутрь слайса. Если нужного экспорта там нет (`GrayButton`, `MediaItem`, `SidebarItem`, `HeaderIntro`) — сначала добавь его в `index.ts`.
 
