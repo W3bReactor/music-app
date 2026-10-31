@@ -2,7 +2,7 @@ import Link from "next/link";
 import styles from "./TrackCard.module.css";
 import Image from "next/image";
 import trackPreviewImage from "./track-preview-1.jpg";
-import type { Track } from "../../model/types";
+import type { Track } from "@/entities/track";
 
 interface TrackCardProps {
   track: Track;
