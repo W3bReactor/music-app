@@ -1,13 +1,13 @@
-"use client";
 import styles from "./TrackInfo.module.css";
 import Image from "next/image";
 import trackImage from "./track-preview.jpg";
-import { SvgIcon } from "@/shared/ui";
-import { useState } from "react";
+import { ReactNode } from "react";
 
-export const TrackInfo = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
+interface TrackInfoProps {
+  playSlot?: ReactNode;
+}
 
+export const TrackInfo = ({ playSlot }: TrackInfoProps) => {
   return (
     <div className={styles.trackMainInfo}>
       <div className={styles.trackImageWrapper}>
@@ -20,16 +20,7 @@ export const TrackInfo = () => {
       <div className={styles.trackContent}>
         <h2 className={styles.trackName}>Superman</h2>
         <span className={styles.trackArtist}>Eminem</span>
-        <button
-          onClick={() => setIsPlaying((ip) => !ip)}
-          className={styles.trackPlayBtn}
-        >
-          {isPlaying ? (
-            <SvgIcon name={"playing"} className={styles.trackPlayIcon} />
-          ) : (
-            <SvgIcon name={"play"} className={styles.trackPlayIcon} />
-          )}
-        </button>
+        {playSlot}
         {/* IDEA: Возможно добавить ещё кнопку скачивания трека */}
       </div>
     </div>

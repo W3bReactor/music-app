@@ -1,0 +1,18 @@
+.playerControlRoad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 24px;
+}
+
+.playerControlTime {
+    font-weight: 400;
+    font-size: 20px;
+    color: var(--text-primary);
+}
+
+.playerControlRoadProgress {
+    position: relative;
+    width: 472px;
+}

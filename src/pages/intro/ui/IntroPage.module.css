@@ -10,4 +10,27 @@
     margin-bottom: 12px;
 }
 
+.trackPlayBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    background-color: var(--action-primary);
+    cursor: pointer;
+    transition: background-color 0.2s linear;
+}
+
+.trackPlayBtn:hover,
+.trackPlayBtn:focus-visible {
+    background-color: var(--action-primary-hover);
+}
+
+.trackPlayIcon {
+    fill: var(--white-100);
+}
+
 

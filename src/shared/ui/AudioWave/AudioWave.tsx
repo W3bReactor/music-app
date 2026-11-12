@@ -5,12 +5,12 @@ import styles from "./AudioWave.module.css";
 interface AudioWaveProps {
   peaks: number[];
   progress: number; // 0..1
-  onSeek: (ratio: number) => void;
+  seek: (ratio: number) => void;
 }
 
 const MIN_BAR = 0.08;
 
-export const AudioWave = ({ peaks, progress, onSeek }: AudioWaveProps) => {
+export const AudioWave = ({ peaks, progress, seek }: AudioWaveProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const max = Math.max(...peaks, 1e-6);
@@ -28,7 +28,7 @@ export const AudioWave = ({ peaks, progress, onSeek }: AudioWaveProps) => {
     // Процент в элементе .track относительно места курсора т.е cursorPosition/elementWidth
     const ratio = (e.clientX - rect.left) / rect.width;
 
-    onSeek(Math.min(1, Math.max(0, ratio)));
+    seek(Math.min(1, Math.max(0, ratio)));
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -44,8 +44,8 @@ export const AudioWave = ({ peaks, progress, onSeek }: AudioWaveProps) => {
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight") onSeek(Math.min(1, progress + 0.02));
-    if (e.key === "ArrowLeft") onSeek(Math.max(0, progress - 0.02));
+    if (e.key === "ArrowRight") seek(Math.min(1, progress + 0.02));
+    if (e.key === "ArrowLeft") seek(Math.max(0, progress - 0.02));
   };
 
   return (
@@ -55,7 +55,7 @@ export const AudioWave = ({ peaks, progress, onSeek }: AudioWaveProps) => {
       style={{ "--progress": `${progress * 100}%` } as React.CSSProperties}
       role="slider"
       tabIndex={0}
-      aria-label="Перемотка"
+      aria-label="seek"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(progress * 100)}

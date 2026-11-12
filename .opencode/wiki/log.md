@@ -155,3 +155,17 @@ single `track: Track` prop (its flat props duplicated the type) and `mockTracks`
 declaring it. The dead `SvgIcon/icons.tsx` JSX object was deleted (nothing imported it; icons come from the sprite).
 Feature work for issue #26 landed as `feat: implement track cards in the intro slider` — the earlier `cf51bcc` had
 committed those files empty. tsc exit 0, `next build` exit 0.
+
+## [2026-11-12] ingest | Player store (entities/player), `(intro)` moved under `(basic)`
+Zustand player store landed: `entities/player` (`player.store.ts`, the `<audio>` singleton in `audio.ts`, one
+selector per field/action) is the only owner of playback; `features/play-track` (`PlayBtn`) and `widgets/player`
+subscribe through selectors, no props drilling. Pause on route change is explicit now: the `Player` unmount cleanup
+was removed (it silenced audio on *any* unmount, StrictMode included) and `features/pause-player` (`PausePlayer`,
+renders `null` and pauses on mount) is mounted in `AuthLayout`, so `/login`, `/register`, `/successfully` are silent
+while playback continues across `(basic)` pages. Cards got the `PlayBtn` overlay: `TrackCard` takes `playSlot`
+(entity keeps its direction — the page composes the feature) and the button is an absolute sibling of the `Link`,
+not a `<button>` inside it. Mocks: `getMockAudioUrl` caches one Blob URL per duration; `QueueItem.audioUrl` is
+optional and resolved in the store because Blob URLs exist only on the client. Filed [[wiki/entities/player]].
+Also repaired doc damage from the folder move: the `/` row in the concept page, the sidebar page, one historical
+line above and the AGENTS.md route groups. Measured after the changes: `tsc` exit 0, `next build` exit 0 (7 routes),
+lint 4 known problems.
