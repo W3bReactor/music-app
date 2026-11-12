@@ -2,14 +2,15 @@
 title: music-app: FSD + Next.js App Router layout
 tags: [fsd, nextjs, architecture, conventions, music-app]
 sourceRefs: [package.json, package-lock.json, tsconfig.json, eslint.config.mjs, next.config.ts, README.md, app/, src/, git log]
-lastReviewed: 2026-10-29
+lastReviewed: 2026-11-12
 ---
 
 # music-app: FSD + Next.js App Router layout
 
-Re-checked 2026-10-29 on `feature/add-music-cards` (player, music page, track cards; first `entities` slice).
+Re-checked 2026-11-12 on `refactor/add-player-store` (Zustand player store in `entities/player`, `intro` moved under `(basic)`).
+Previous pass 2026-10-29: player, music page, track cards; first `entities` slice.
 Companion pages:
-[[wiki/entities/svg-icon]], [[wiki/entities/sidebar]]. Agent-facing summary of the same facts lives in the
+[[wiki/entities/player]], [[wiki/entities/svg-icon]], [[wiki/entities/sidebar]]. Agent-facing summary of the same facts lives in the
 `music-app:project-rules` block of `AGENTS.md`.
 
 ## Stack (verified by imports, not by the dependency list)
@@ -24,6 +25,7 @@ Companion pages:
 | `classnames` | `^2.5.1` | `shared/ui` and widgets (`CardSlider`, `Player`, …), always as `import cn from "classnames"` |
 | `react-hook-form` + `@hookform/resolvers` + `zod` | `^7.90.0` / `^5.9.2` / `^4.6.7` | `src/features/auth/ui/*Form.tsx` + `model/*Schema.ts` |
 | `swiper` | `^14.3.0` | `shared/ui/CardSlider` only (`swiper/react` + `swiper/modules`, CSS via `swiper/css/*`) |
+| `zustand` | `^5.1.0` | `src/entities/player/model/player.store.ts` — общий стейт плеера (см. [[wiki/entities/player]]) |
 | `@types/node` | `^20` | nothing in the code — probably dead, unverified |
 
 `package-lock.json`: `lockfileVersion 3`. Zod 4 API is in use (`z.email(...)` — not available in Zod 3).
@@ -35,7 +37,7 @@ holds a single `README.md` placeholder.
 
 | Route | File |
 |---|---|
-| `/` | `app/(intro)/page.tsx` → `@/pages/intro` |
+| `/` | `app/(basic)/(intro)/page.tsx` → `@/pages/intro` |
 | `/profile` | `app/(basic)/profile/page.tsx` → `@/pages/profile` |
 | `/music/[id]` | `app/(basic)/music/[id]/page.tsx` → `@/pages/track` (dynamic; `params` unused) |
 | `/login` | `app/(auth)/login/page.tsx` → `@/pages/auth` |
@@ -58,10 +60,10 @@ in by the gitignored `next-env.d.ts` — so on a clean clone typecheck fails unt
 |---|---|---|
 | `src/app` | `layouts/AuthLayout`, `layouts/MainLayout`, `styles/globals.css`, `ambient/assets.d.ts` | — |
 | `src/pages` | `auth` (LoginPage, RegisterPage, RegisterSuccessfullyPage), `intro`, `profile`, `track` (TrackPage) | `ui`, `model` (`intro/mockTracks.ts`) |
-| `src/widgets` | `header` (`Header`, `HeaderIntro`), `player` (`Player`) | `ui` |
-| `src/features` | `auth` (LoginForm, RegisterForm), `search` (SearchInput) | `ui`, `model` |
-| `src/entities` | `track` (`TrackCard`, `TrackInfo`) | `ui`, `model` (`Track` in `model/types.ts`) |
-| `src/shared` | `ui` (13 component folders, 11 re-exported — `GrayButton`/`MediaItem` are not), `libs` (`useAudioPlayer`, `mockAudio`, `mockPeaks`) | `ui`, `libs` |
+| `src/widgets` | `header` (`Header`, `HeaderIntro`), `player` (`Player`, `PlayerProgress`) | `ui` |
+| `src/features` | `auth` (LoginForm, RegisterForm), `search` (SearchInput), `play-track` (`PlayBtn`), `pause-player` (`PausePlayer`) | `ui`, `model` |
+| `src/entities` | `track` (`TrackCard`, `TrackInfo`), `player` (store + `audio.ts` + selectors) | `ui`, `model` (`Track` in `model/types.ts`) |
+| `src/shared` | `ui` (13 component folders, 11 re-exported — `GrayButton`/`MediaItem` are not), `libs` (`mockAudio`, `mockPeaks`) | `ui`, `libs` |
 
 No `api` segment. Dependency direction is respected (`app → widgets/pages → features → entities → shared`); the only
 violations are imports that reach **inside** a slice:
@@ -76,10 +78,12 @@ violations are imports that reach **inside** a slice:
 
 ## Server vs client
 
-`"use client"` appears in ten files: the auth forms, `SidebarItem`, `Spoiler`, `AudioWave`, `VolumeProgress`,
-`CardSlider`, `TrackInfo`, `Player` and the `shared/libs/useAudioPlayer.ts` hook. All layouts/pages are server
-components. React Compiler is enabled, so manual memoization is redundant; ESLint flags `watch()` from
-`react-hook-form` as an "incompatible library" for the compiler in `RegisterForm.tsx:28`.
+`"use client"` appears in 12 files: the auth forms, `SidebarItem`, `Header`, `Spoiler`, `AudioWave`, `VolumeProgress`,
+`CardSlider`, `TrackPage`, `Player`, `PlayBtn` and `PausePlayer`. `TrackInfo` and `PlayerProgress` carry no directive
+but live in the client graph of `TrackPage`/`Player`. Layouts and pages (except `TrackPage`) stay server components:
+`IntroPage` (server) passes the client `PlayBtn` into `TrackCard` as a `playSlot` ReactNode, mirroring `TrackInfo`.
+React Compiler is enabled, so manual memoization is redundant; ESLint flags `watch()` from `react-hook-form` as an
+"incompatible library" for the compiler in `RegisterForm.tsx:28`.
 
 ## Conventions confirmed by code
 
@@ -89,8 +93,9 @@ components. React Compiler is enabled, so manual memoization is redundant; ESLin
 - CSS Modules + design tokens from `src/app/styles/globals.css`; conditional classes via `cn`.
 - Images: `next/image`; local assets are imported as modules (`import img from "./x.jpg"`), remote covers require the
   host in `images.remotePatterns` (`next.config.ts` — only `yavuzceliker.github.io` today).
-- Mock media: `shared/libs/mockAudio.ts` builds a WAV in memory and exposes it as a `Blob` URL; `useAudioPlayer`
-  drives time/volume state with `requestAnimationFrame` while playing, and `Player` renders inside `MainLayout`.
+- Mock media: `shared/libs/mockAudio.ts` builds a WAV in memory and returns a `Blob` URL. It returns `""` on the
+  server, so URLs only exist in client code, and `getMockAudioUrl` caches one URL per duration. `useAudioPlayer` is
+  gone — playback lives in the `entities/player` store (see [[wiki/entities/player]]).
 - Forms: schema in `model/*.ts` exporting the schema and the `z.infer` type, `SubmitHandler<T>`, placeholder data
   marked `TODO: GET DATA` + `console.log`.
 - Comments/docs in Russian; identifiers, UI copy, commit subjects in English.
@@ -128,3 +133,5 @@ components. React Compiler is enabled, so manual memoization is redundant; ESLin
    ignores `params` and always shows "Superman".
 6. `CardSlider` uses a fixed `slidesPerView={5}` (no breakpoints).
 7. No tests, no CI, no `typecheck`/`format` scripts.
+8. Mocks: `QueueItem.audioUrl` is optional, so a card without a URL plays the shared 331-second mock WAV
+   (`getMockAudioUrl()`); `playQueue` intentionally **replaces** the queue with the clicked item.

@@ -1,8 +1,8 @@
 ---
 title: Sidebar (shared/ui)
 tags: [ui, navigation, shared, feature-sliced, component]
-sourceRefs: [src/shared/ui/Sidebar/Sidebar.tsx, src/shared/ui/Sidebar/Sidebar.module.css, src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx, src/shared/ui/Sidebar/SidebarItem/SidebarItem.module.css, src/shared/ui/SvgIcon/SvgIcon.tsx, src/app/layouts/MainLayout/MainLayout.tsx, app/(basic)/layout.tsx, app/(intro)/layout.tsx]
-lastReviewed: 2026-10-18
+sourceRefs: [src/shared/ui/Sidebar/Sidebar.tsx, src/shared/ui/Sidebar/Sidebar.module.css, src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx, src/shared/ui/Sidebar/SidebarItem/SidebarItem.module.css, src/shared/ui/SvgIcon/SvgIcon.tsx, src/app/layouts/MainLayout/MainLayout.tsx, app/(basic)/layout.tsx]
+lastReviewed: 2026-11-12
 ---
 
 # Sidebar (shared/ui)
@@ -12,8 +12,7 @@ Left navigation rail of the app. Everything called a "sidebar button" lives in t
 ## Component tree
 
 ```
-app/(basic)/layout.tsx ─┐
-app/(intro)/layout.tsx ─┴─► src/app/layouts/MainLayout/MainLayout.tsx
+app/(basic)/layout.tsx ─► src/app/layouts/MainLayout/MainLayout.tsx
                               └─► src/shared/ui/Sidebar/Sidebar.tsx        ← <aside>, sections
                                     └─► src/shared/ui/Sidebar/SidebarItem/SidebarItem.tsx  ← one row = icon + label + link
                                           └─► src/shared/ui/SvgIcon/SvgIcon.tsx             ← <use href="/icons/sprite.svg#sprite-NAME">
