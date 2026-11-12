@@ -1,3 +1,4 @@
+"use client";
 import styles from "./Header.module.css";
 import { PinkButton, SvgIcon } from "@/shared/ui";
 import Link from "next/link";
@@ -6,12 +7,11 @@ import AvatarIcon from "./avatar.svg";
 import { SearchInput } from "@/features/search";
 import { HeaderIntro } from "@/widgets/header/ui/HeaderIntro/HeaderIntro";
 import cn from "classnames";
+import { usePathname } from "next/navigation";
 
-interface HeaderProps {
-  isIntro?: boolean;
-}
-
-export const Header = ({ isIntro = false }: HeaderProps) => {
+export const Header = () => {
+  const path = usePathname();
+  const isIntro = path === "/";
   return (
     <header className={cn(styles.header, { [styles.headerIntro]: isIntro })}>
       <div className={styles.headerInner}>

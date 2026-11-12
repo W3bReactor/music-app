@@ -4,39 +4,40 @@ import Image from "next/image";
 import playerPreviewImage from "./track-preview.jpg";
 import volumeIcon from "./volume.svg";
 import cn from "classnames";
-import { useAudioPlayer } from "@/shared/libs/useAudioPlayer";
-import { MOCK_PEAKS } from "@/shared/libs/mockPeaks";
-import { AudioWave, SvgIcon, VolumeProgress } from "@/shared/ui";
-import { createMockAudioUrl } from "@/shared/libs/mockAudio";
-import { useEffect } from "react";
-
-const fmt = (s: number) =>
-  `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+import { SvgIcon, VolumeProgress } from "@/shared/ui";
+import {
+  selectIsPlaying,
+  selectNext,
+  selectPause,
+  selectPlay,
+  selectPrev,
+  selectSetVolume,
+  selectToggleMute,
+  selectVolume,
+  usePlayerStore,
+} from "@/entities/player";
+import { PlayerProgress } from "./PlayerProgress/PlayerProgress";
 
 export const Player = () => {
-  const {
-    audioRef,
-    isPlaying,
-    currentTime,
-    duration,
-    toggle,
-    seek,
-    volume,
-    setVolume,
-    toggleMute,
-  } = useAudioPlayer();
+  const isPlaying = usePlayerStore(selectIsPlaying);
+  const volume = usePlayerStore(selectVolume);
+  const toggleMute = usePlayerStore(selectToggleMute);
+  const setVolume = usePlayerStore(selectSetVolume);
+  const next = usePlayerStore(selectNext);
+  const prev = usePlayerStore(selectPrev);
+  const play = usePlayerStore(selectPlay);
+  const pause = usePlayerStore(selectPause);
 
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    const url = createMockAudioUrl(331);
-    a.src = url;
-    return () => URL.revokeObjectURL(url);
-  }, [audioRef]);
+  const toggle = async () => {
+    if (isPlaying) {
+      pause();
+    } else {
+      await play();
+    }
+  };
 
   return (
     <div className={styles.player}>
-      <audio ref={audioRef} preload="metadata" />
       <div className={styles.playerTrack}>
         <Image
           src={playerPreviewImage}
@@ -54,7 +55,10 @@ export const Player = () => {
       <div className={styles.playerControl}>
         <div className={styles.playerControlButtons}>
           <button
+            type="button"
+            aria-label={"Previous Track"}
             className={cn(styles.playerControlButton, styles.playerControlPrev)}
+            onClick={prev}
           >
             <SvgIcon
               name={"next"}
@@ -67,8 +71,8 @@ export const Player = () => {
           </button>
           <button
             className={cn(styles.playerControlButton, styles.playerControlPlay)}
-            onClick={toggle}
             aria-label={isPlaying ? "Pause" : "Play"}
+            onClick={toggle}
           >
             {isPlaying ? (
               <SvgIcon
@@ -89,7 +93,10 @@ export const Player = () => {
             )}
           </button>
           <button
+            type="button"
+            aria-label={"Next Track"}
             className={cn(styles.playerControlButton, styles.playerControlNext)}
+            onClick={next}
           >
             <SvgIcon
               name={"next"}
@@ -101,27 +108,16 @@ export const Player = () => {
             />
           </button>
         </div>
-        <div className={styles.playerControlRoad}>
-          <span className={styles.playerControlTime}>{fmt(currentTime)}</span>
-          <div className={styles.playerControlRoadProgress}>
-            <AudioWave
-              peaks={MOCK_PEAKS}
-              progress={duration ? currentTime / duration : 0}
-              onSeek={seek}
-            />
-          </div>
-          <span className={styles.playerControlTime}>{fmt(duration)}</span>
-        </div>
+        <PlayerProgress />
       </div>
 
       <div className={styles.playerVolume}>
-        <button className={styles.playerVolumeBtn}>
-          <Image
-            src={volumeIcon}
-            alt={"Volume"}
-            onClick={toggleMute}
-            aria-label={volume === 0 ? "Включить звук" : "Выключить звук"}
-          />
+        <button
+          aria-label={volume === 0 ? "Unmute" : "Mute"}
+          onClick={toggleMute}
+          className={styles.playerVolumeBtn}
+        >
+          <Image src={volumeIcon} alt={"Volume"} />
         </button>
         <div className={styles.playerVolumeProgress}>
           <VolumeProgress value={volume} onChange={setVolume} />

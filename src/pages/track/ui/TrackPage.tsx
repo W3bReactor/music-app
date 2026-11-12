@@ -1,11 +1,34 @@
+"use client";
+import { useState } from "react";
 import styles from "./TrackPage.module.css";
 import { TrackInfo } from "@/entities/track";
-import { Spoiler } from "@/shared/ui";
+import { Spoiler, SvgIcon } from "@/shared/ui";
+import { PlayBtn } from "@/features/play-track";
+import { getMockAudioUrl } from "@/shared/libs/mockAudio";
 
 export const TrackPage = () => {
+  // URL создаётся один раз за монтирование, а не на каждый рендер
+  const [trackUrl] = useState(() => getMockAudioUrl(151));
+
   return (
     <section className={styles.track}>
-      <TrackInfo />
+      <TrackInfo
+        playSlot={
+          <PlayBtn
+            className={styles.trackPlayBtn}
+            item={{
+              id: 3,
+              audioUrl: trackUrl,
+            }}
+            playingSlot={
+              <SvgIcon name={"playing"} className={styles.trackPlayIcon} />
+            }
+            pausedSlot={
+              <SvgIcon name={"play"} className={styles.trackPlayIcon} />
+            }
+          />
+        }
+      />
       <Spoiler
         title={"Lyrics"}
         text={`You high baby? Yeah. Yeah? Talk to me. You want me to tell you

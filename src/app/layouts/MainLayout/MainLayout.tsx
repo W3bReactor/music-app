@@ -5,16 +5,15 @@ import { ReactNode } from "react";
 import { Player } from "@/widgets/player";
 
 interface MainLayoutProps {
-  isIntro?: boolean;
   children: ReactNode;
 }
 
-export const MainLayout = ({ children, isIntro = false }: MainLayoutProps) => {
+export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className={styles.page}>
       <Sidebar />
       <div className={styles.pageInner}>
-        <Header isIntro={isIntro} />
+        <Header />
         <main>{children}</main>
         <Player />
         <Footer />

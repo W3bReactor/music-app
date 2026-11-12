@@ -1,10 +1,8 @@
 .trackCard {
+    position: relative;
     padding: 8px;
     border-radius: 10px;
     background-color: var(--background-secondary);
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
     max-width: 178px;
     transition: background-color 0.2s ease;
 }
@@ -12,6 +10,32 @@
 .trackCard:hover {
     background-color: var(--background-tertiary);
 
+}
+
+.trackLink {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+}
+
+.trackPlayWrapper {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -35%);
+}
+
+/* На тач-устройствах hover нет, поэтому кнопка видна всегда */
+@media (hover: hover) {
+    .trackPlayWrapper {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .trackCard:hover .trackPlayWrapper,
+    .trackPlayWrapper:focus-within {
+        opacity: 1;
+    }
 }
 
 .trackImage {

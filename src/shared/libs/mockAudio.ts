@@ -1,4 +1,7 @@
 export const createMockAudioUrl = (seconds = 331): string => {
+  if (typeof window === "undefined") {
+    return "";
+  }
   const sampleRate = 8000;
   const samples = seconds * sampleRate;
   const buffer = new ArrayBuffer(44 + samples);
@@ -29,4 +32,21 @@ export const createMockAudioUrl = (seconds = 331): string => {
   }
 
   return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+};
+
+// Один и тот же URL на одинаковую длительность, чтобы не плодить Blob'ы
+// TODO: Убрать вместе с моками, когда появятся настоящие аудио
+const mockAudioUrls = new Map<number, string>();
+
+export const getMockAudioUrl = (seconds = 331): string => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  const cachedUrl = mockAudioUrls.get(seconds);
+  if (cachedUrl) {
+    return cachedUrl;
+  }
+  const url = createMockAudioUrl(seconds);
+  mockAudioUrls.set(seconds, url);
+  return url;
 };
